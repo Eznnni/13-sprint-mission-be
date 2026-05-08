@@ -3,10 +3,12 @@ import express from "express";
 import connectDB from "./db.js";
 import Product from "./models/Product.js";
 import { asyncHandler } from "./utils/asyncHandler.js";
+import cors from "cors";
 
 dotenv.config();
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 connectDB();
