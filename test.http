@@ -1,0 +1,38 @@
+@baseUrl = http://localhost:3000
+@productUrl = /products
+@testId = /69fd71b8d1cb632000cc8e22
+
+###등록
+POST {{baseUrl}}{{productUrl}}
+Content-Type: application/json
+
+{
+  "name": "비타민 C",
+  "description" : "몸에 좋은 비타민C",
+  "price": "120000",
+  "tags": ["식품", "영양제"]
+}
+
+###상세 조회
+GET {{baseUrl}}{{productUrl}}{{testId}}
+
+###수정
+PATCH {{baseUrl}}{{productUrl}}{{testId}}
+Content-Type: application/json
+
+{
+  "name": "테슬라 자동차"
+}
+
+###삭제
+DELETE {{baseUrl}}{{productUrl}}{{testId}}
+Content-Type: application/json
+
+###목록 조회 (10개)
+GET {{baseUrl}}{{productUrl}}
+
+###목록 조회 (검색)
+GET {{baseUrl}}{{productUrl}}?search=헤드셋&sort=recent&offset=0&limit=10
+
+###목록 조회 (pagination)
+GET {{baseUrl}}{{productUrl}}?offset=5&limit=10
