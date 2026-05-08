@@ -18,7 +18,7 @@ const productSchema = new mongoose.Schema(
       min: [0, "가격은 0 이상이어야 해요."],
     },
     tags: {
-      type: String,
+      type: [String],
       trim: true,
     },
   },
