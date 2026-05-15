@@ -6,6 +6,7 @@ const prisma = new PrismaClient();
 async function main() {
   await prisma.product.deleteMany();
   await prisma.tag.deleteMany();
+  await prisma.article.deleteMany();
   console.log("🧹 기존 데이터 삭제 완료");
 
   const products = [
@@ -125,7 +126,42 @@ async function main() {
     });
   }
 
-  console.log(`🌱 시드 데이터 ${products.length}개 삽입 완료`);
+  console.log(`🌱 product 시드 데이터 ${products.length}개 삽입 완료`);
+
+  const articles = [
+    {
+      title: "맥북 16인치 16기가 1테라 정도 사양이면 얼마에 팔아야하나요?",
+      content: "맥북 16인치 16기가 1테라 정도 사양이면 얼마에 팔아야하나요?",
+    },
+    {
+      title: "맥북 17인치 16기가 1테라 정도 사양이면 얼마에 팔아야하나요?",
+      content: "맥북 17인치 16기가 1테라 정도 사양이면 얼마에 팔아야하나요?",
+    },
+    {
+      title: "맥북 18인치 16기가 1테라 정도 사양이면 얼마에 팔아야하나요?",
+      content: "맥북 18인치 16기가 1테라 정도 사양이면 얼마에 팔아야하나요?",
+    },
+    {
+      title: "맥북 19인치 16기가 1테라 정도 사양이면 얼마에 팔아야하나요?",
+      content: "맥북 19인치 16기가 1테라 정도 사양이면 얼마에 팔아야하나요?",
+    },
+    {
+      title: "맥북 20인치 16기가 1테라 정도 사양이면 얼마에 팔아야하나요?",
+      content: "맥북 20인치 16기가 1테라 정도 사양이면 얼마에 팔아야하나요?",
+    },
+  ];
+
+  for (const item of articles) {
+    const { title, content } = item;
+    await prisma.article.create({
+      data: {
+        title: title,
+        content: content,
+      },
+    });
+  }
+
+  console.log(`🌱 article 시드 데이터 ${articles.length}개 삽입 완료`);
 }
 
 main()

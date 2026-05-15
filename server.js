@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 
+import articleRouter from "./src/routes/article.js";
 import productRouter from "./src/routes/product.js";
 import { PORT } from "./src/constants/common.js";
 
@@ -13,6 +14,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/products", productRouter);
+app.use("/articles", articleRouter);
 
 app.listen(PORT, () => {
   console.log(`✅ Server running on http://localhost:${PORT}`);
