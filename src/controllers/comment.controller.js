@@ -4,28 +4,18 @@ import prisma from "../lib/prisma.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import createCommentSchema from "../schemas/comment.schema.js";
 import { idSchema } from "../schemas/common.schema.js";
+import { cursorPagination } from "../utils/pagination.js";
 
 export const getProductCommentList = asyncHandler(async (req, res) => {
   const { id } = idSchema.parse(req.params);
-  const { limit = "3", sort = "recent", lastId } = req.query;
+  const { limit, sort, lastId } = req.query;
+  const queryOptions = cursorPagination(limit, lastId);
 
-  const take = parseInt(limit) || 3;
   const orderBy = ORDERBY[sort] ?? { createdAt: "desc" };
   const where = { productId: id };
 
-  let queryOptions = {
-    where,
-    take,
-    orderBy,
-  };
-
-  if (lastId) {
-    queryOptions.skip = 1;
-    queryOptions.cursor = { id: parseInt(lastId) };
-  }
-
   const [comments, total] = await Promise.all([
-    prisma.comment.findMany(queryOptions),
+    prisma.comment.findMany({ ...queryOptions, where, orderBy }),
     prisma.comment.count({ where }),
   ]);
 
@@ -34,7 +24,7 @@ export const getProductCommentList = asyncHandler(async (req, res) => {
 
   res.json({
     success: true,
-    limit: take,
+    limit: queryOptions.take,
     total,
     nextCursor,
     sort: sort,
@@ -54,25 +44,14 @@ export const postProductComment = asyncHandler(async (req, res) => {
 
 export const getArticleCommentList = asyncHandler(async (req, res) => {
   const { id } = idSchema.parse(req.params);
-  const { limit = "3", sort = "recent", lastId } = req.query;
+  const { limit, sort, lastId } = req.query;
+  const queryOptions = cursorPagination(limit, lastId);
 
-  const take = parseInt(limit) || 3;
   const orderBy = ORDERBY[sort] ?? { createdAt: "desc" };
   const where = { articleId: id };
 
-  let queryOptions = {
-    where,
-    take,
-    orderBy,
-  };
-
-  if (lastId) {
-    queryOptions.skip = 1;
-    queryOptions.cursor = { id: parseInt(lastId) };
-  }
-
   const [comments, total] = await Promise.all([
-    prisma.comment.findMany(queryOptions),
+    prisma.comment.findMany({ ...queryOptions, where, orderBy }),
     prisma.comment.count({ where }),
   ]);
 
@@ -81,7 +60,7 @@ export const getArticleCommentList = asyncHandler(async (req, res) => {
 
   res.json({
     success: true,
-    limit: take,
+    limit: queryOptions.take,
     total,
     nextCursor,
     sort: sort,

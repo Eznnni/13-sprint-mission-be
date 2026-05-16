@@ -2,7 +2,7 @@
 @articleUrl = /articles
 @testId = /30
 @commentUrl = /comments
-@testCommentId = /11
+@testCommentId = /19
 
 ###등록
 POST {{baseUrl}}{{articleUrl}}

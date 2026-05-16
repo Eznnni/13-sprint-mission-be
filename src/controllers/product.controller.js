@@ -7,10 +7,11 @@ import {
 } from "../schemas/product.schema.js";
 import { ORDERBY } from "../constants/common.js";
 import { idSchema } from "../schemas/common.schema.js";
+import { offsetPagination } from "../utils/pagination.js";
 
 export const getProductList = asyncHandler(async (req, res) => {
-  const { page = "1", limit = "10", sort = "recent", search } = req.query;
-
+  const { page, limit, sort, search } = req.query;
+  const { pageNum, take, skip } = offsetPagination(page, limit);
   const where = {};
 
   if (search) {
@@ -21,10 +22,6 @@ export const getProductList = asyncHandler(async (req, res) => {
   }
 
   const orderBy = ORDERBY[sort] ?? { createdAt: "desc" };
-
-  const pageNum = parseInt(page) || 1;
-  const take = parseInt(limit) || 10;
-  const skip = (pageNum - 1) * take;
 
   const [products, total] = await Promise.all([
     prisma.product.findMany({ where, orderBy, skip, take }),
