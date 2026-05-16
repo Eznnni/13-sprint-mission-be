@@ -1,6 +1,7 @@
 import prisma from "../lib/prisma.js";
 import { ORDERBY } from "../constants/common.js";
 import { offsetPagination } from "../utils/pagination.js";
+import { NotFoundError } from "../utils/errors.js";
 
 export const findProduct = async (page, limit, sort, search) => {
   const { pageNum, take, skip } = offsetPagination(page, limit);
@@ -28,6 +29,10 @@ export const findProductById = async (id) => {
   const product = await prisma.product.findUnique({
     where: { id },
   });
+
+  if (!product) {
+    throw new NotFoundError("해당 product를 찾을 수 없습니다");
+  }
 
   return product;
 };

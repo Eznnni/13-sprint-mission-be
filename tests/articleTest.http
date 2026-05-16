@@ -1,8 +1,8 @@
 @baseUrl = http://localhost:3000
 @articleUrl = /articles
-@testId = /32
+@testId = /33
 @commentUrl = /comments
-@testCommentId = /19
+@testCommentId = /37
 
 ###등록
 POST {{baseUrl}}{{articleUrl}}

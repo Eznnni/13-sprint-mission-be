@@ -1,6 +1,7 @@
 import prisma from "../lib/prisma.js";
 import { ORDERBY } from "../constants/common.js";
 import { offsetPagination } from "../utils/pagination.js";
+import { NotFoundError } from "../utils/errors.js";
 
 export const findArticle = async (page, limit, sort, search) => {
   const { pageNum, take, skip } = offsetPagination(page, limit);
@@ -29,6 +30,10 @@ export const findArticleById = async (id) => {
     where: { id },
   });
 
+  if (!article) {
+    throw new NotFoundError("해당 article을 찾을 수 없습니다");
+  }
+
   return article;
 };
 
@@ -45,10 +50,12 @@ export const updateArticle = async (id, data) => {
     where: { id },
     data,
   });
+
   return article;
 };
 
 export const deleteArticle = async (id) => {
-  await prisma.article.delete({ where: { id } });
+  const article = await prisma.article.delete({ where: { id } });
+
   return;
 };

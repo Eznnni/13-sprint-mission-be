@@ -1,9 +1,9 @@
 @baseUrl = http://localhost:3000
 @productUrl = /products
-@testId =/219
-@upsertId = /10000
+@testId =/220
+@upsertId = /10001
 @commentUrl = /comments
-@testCommentId = /16
+@testCommentId = /34
 
 ###등록
 POST {{baseUrl}}{{productUrl}}
