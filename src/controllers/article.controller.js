@@ -1,32 +1,20 @@
 import { success } from "zod";
-import { ORDERBY } from "../constants/common.js";
-import prisma from "../lib/prisma.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {
   createArticleSchema,
   updateArticleSchema,
 } from "../schemas/article.schema.js";
 import { idSchema } from "../schemas/common.schema.js";
-import { offsetPagination } from "../utils/pagination.js";
+import * as ArticleService from "../services/article.service.js";
 
 export const getArticleList = asyncHandler(async (req, res) => {
   const { page, limit, sort, search } = req.query;
-  const { pageNum, take, skip } = offsetPagination(page, limit);
-  const where = {};
-
-  if (search) {
-    where.OR = [
-      { title: { contains: search, mode: "insensitive" } },
-      { content: { contains: search, mode: "insensitive" } },
-    ];
-  }
-
-  const orderBy = ORDERBY[sort] ?? { createdAt: "desc" };
-
-  const [articles, total] = await Promise.all([
-    prisma.article.findMany({ where, orderBy, skip, take }),
-    prisma.article.count({ where }),
-  ]);
+  const { articles, total, pageNum, take } = await ArticleService.findArticle(
+    page,
+    limit,
+    sort,
+    search,
+  );
 
   res.json({
     success: true,
@@ -41,9 +29,8 @@ export const getArticleList = asyncHandler(async (req, res) => {
 
 export const getArticleByID = asyncHandler(async (req, res) => {
   const { id } = idSchema.parse(req.params);
-  const article = await prisma.article.findUnique({
-    where: { id },
-  });
+  const article = await ArticleService.findArticleById(id);
+
   res.json({
     success: true,
     data: article,
@@ -52,24 +39,19 @@ export const getArticleByID = asyncHandler(async (req, res) => {
 
 export const postArticle = asyncHandler(async (req, res) => {
   const { title, content } = createArticleSchema.parse(req.body);
-  const article = await prisma.article.create({
-    data: { title: title, content: content },
-  });
+  const article = await ArticleService.createArticle(title, content);
   res.json({ success: true, data: article });
 });
 
 export const patchArticle = asyncHandler(async (req, res) => {
   const { id } = idSchema.parse(req.params);
   const data = updateArticleSchema.parse(req.body);
-  const article = await prisma.article.update({
-    where: { id },
-    data,
-  });
+  const article = await ArticleService.updateArticle(id, data);
   res.json({ success: true, data: article });
 });
 
 export const deleteArticle = asyncHandler(async (req, res) => {
   const { id } = idSchema.parse(req.params);
-  await prisma.article.delete({ where: { id } });
+  await ArticleService.deleteArticle(id);
   res.json({ success: true, message: "article이 삭제되었습니다" });
 });

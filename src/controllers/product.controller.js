@@ -1,32 +1,19 @@
-import prisma from "../lib/prisma.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { NotFoundError } from "../utils/errors.js";
 import {
   createProductSchema,
   updateProductSchema,
 } from "../schemas/product.schema.js";
-import { ORDERBY } from "../constants/common.js";
 import { idSchema } from "../schemas/common.schema.js";
-import { offsetPagination } from "../utils/pagination.js";
+import * as ProductService from "../services/product.service.js";
 
 export const getProductList = asyncHandler(async (req, res) => {
   const { page, limit, sort, search } = req.query;
-  const { pageNum, take, skip } = offsetPagination(page, limit);
-  const where = {};
-
-  if (search) {
-    where.OR = [
-      { name: { contains: search, mode: "insensitive" } },
-      { description: { contains: search, mode: "insensitive" } },
-    ];
-  }
-
-  const orderBy = ORDERBY[sort] ?? { createdAt: "desc" };
-
-  const [products, total] = await Promise.all([
-    prisma.product.findMany({ where, orderBy, skip, take }),
-    prisma.product.count({ where }),
-  ]);
+  const { products, total, pageNum, take } = await ProductService.findProduct(
+    page,
+    limit,
+    sort,
+    search,
+  );
 
   res.json({
     success: true,
@@ -41,39 +28,23 @@ export const getProductList = asyncHandler(async (req, res) => {
 
 export const getProductBYId = asyncHandler(async (req, res) => {
   const { id } = idSchema.parse(req.params);
-  const product = await prisma.product.findUnique({
-    where: { id },
-  });
+  const product = await ProductService.findProductById(id);
+
   res.json({ success: true, data: product });
 });
 
 export const postProduct = asyncHandler(async (req, res) => {
   const newProduct = await createProductSchema.parse(req.body);
-  const { tags, ...rest } = newProduct;
-  const product = await prisma.product.create({
-    data: {
-      ...rest,
-      tags: {
-        connectOrCreate: tags?.map((tag) => ({
-          where: { name: tag },
-          create: { name: tag },
-        })),
-      },
-    },
-    include: {
-      tags: true,
-    },
-  });
+  const product = await ProductService.createProduct(newProduct);
+
   res.json({ success: true, data: product });
 });
 
 export const patchProduct = asyncHandler(async (req, res) => {
   const { id } = idSchema.parse(req.params);
   const data = updateProductSchema.parse(req.body);
-  const product = await prisma.product.update({
-    where: { id },
-    data,
-  });
+  const product = await ProductService.updateProduct(id, data);
+
   res.json({ success: true, data: product });
 });
 
@@ -81,40 +52,20 @@ export const upsertProduct = asyncHandler(async (req, res) => {
   const { id } = idSchema.parse(req.params);
   const { name, description, tags, price } = req.body;
 
-  const productId = parseInt(id) ?? 0;
+  const product = await ProductService.updateOrCreateProduct(
+    id,
+    name,
+    description,
+    tags,
+    price,
+  );
 
-  const product = await prisma.product.upsert({
-    where: { id: productId },
-    update: {
-      name,
-      description,
-      price: parseInt(price),
-      tags: {
-        set: [],
-        connectOrCreate: tags.map((tag) => ({
-          where: { name: tag },
-          create: { name: tag },
-        })),
-      },
-    },
-    create: {
-      id: productId > 0 ? productId : undefined,
-      name,
-      description,
-      price: parseInt(price),
-      tags: {
-        connectOrCreate: tags.map((tag) => ({
-          where: { name: tag },
-          create: { name: tag },
-        })),
-      },
-    },
-  });
   res.json({ success: true, data: product });
 });
 
 export const deleteProduct = asyncHandler(async (req, res) => {
   const { id } = idSchema.parse(req.params);
-  const product = await prisma.product.delete({ where: { id } });
+  await ProductService.deleteProduct(id);
+
   res.json({ success: true, message: "Product가 삭제되었습니다" });
 });

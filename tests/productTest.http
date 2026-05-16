@@ -1,7 +1,7 @@
 @baseUrl = http://localhost:3000
 @productUrl = /products
-@testId =/217
-@upsertId = /9999
+@testId =/219
+@upsertId = /10000
 @commentUrl = /comments
 @testCommentId = /16
 

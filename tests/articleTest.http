@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:3000
 @articleUrl = /articles
-@testId = /30
+@testId = /32
 @commentUrl = /comments
 @testCommentId = /19
 
