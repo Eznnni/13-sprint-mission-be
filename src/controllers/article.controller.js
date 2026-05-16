@@ -6,6 +6,7 @@ import {
   createArticleSchema,
   updateArticleSchema,
 } from "../schemas/article.schema.js";
+import { idSchema } from "../schemas/common.schema.js";
 
 export const getArticleList = asyncHandler(async (req, res) => {
   const { page = "1", limit = "10", sort = "recent", search } = req.query;
@@ -42,9 +43,9 @@ export const getArticleList = asyncHandler(async (req, res) => {
 });
 
 export const getArticleByID = asyncHandler(async (req, res) => {
-  const { id } = req.params;
+  const { id } = idSchema.parse(req.params);
   const article = await prisma.article.findUnique({
-    where: { id: parseInt(id) },
+    where: { id },
   });
   res.json({
     success: true,
@@ -61,17 +62,17 @@ export const postArticle = asyncHandler(async (req, res) => {
 });
 
 export const patchArticle = asyncHandler(async (req, res) => {
-  const { id } = req.params;
+  const { id } = idSchema.parse(req.params);
   const data = updateArticleSchema.parse(req.body);
   const article = await prisma.article.update({
-    where: { id: parseInt(id) },
+    where: { id },
     data,
   });
   res.json({ success: true, data: article });
 });
 
 export const deleteArticle = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  await prisma.article.delete({ where: { id: parseInt(id) } });
+  const { id } = idSchema.parse(req.params);
+  await prisma.article.delete({ where: { id } });
   res.json({ success: true, message: "article이 삭제되었습니다" });
 });

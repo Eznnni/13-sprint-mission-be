@@ -6,6 +6,7 @@ import {
   updateProductSchema,
 } from "../schemas/product.schema.js";
 import { ORDERBY } from "../constants/common.js";
+import { idSchema } from "../schemas/common.schema.js";
 
 export const getProductList = asyncHandler(async (req, res) => {
   const { page = "1", limit = "10", sort = "recent", search } = req.query;
@@ -42,9 +43,9 @@ export const getProductList = asyncHandler(async (req, res) => {
 });
 
 export const getProductBYId = asyncHandler(async (req, res) => {
-  const { id } = req.params;
+  const { id } = idSchema.parse(req.params);
   const product = await prisma.product.findUnique({
-    where: { id: parseInt(id) },
+    where: { id },
   });
   res.json({ success: true, data: product });
 });
@@ -70,17 +71,17 @@ export const postProduct = asyncHandler(async (req, res) => {
 });
 
 export const patchProduct = asyncHandler(async (req, res) => {
-  const { id } = req.params;
+  const { id } = idSchema.parse(req.params);
   const data = updateProductSchema.parse(req.body);
   const product = await prisma.product.update({
-    where: { id: parseInt(id) },
+    where: { id },
     data,
   });
   res.json({ success: true, data: product });
 });
 
 export const upsertProduct = asyncHandler(async (req, res) => {
-  const { id } = req.params;
+  const { id } = idSchema.parse(req.params);
   const { name, description, tags, price } = req.body;
 
   const productId = parseInt(id) ?? 0;
@@ -116,7 +117,7 @@ export const upsertProduct = asyncHandler(async (req, res) => {
 });
 
 export const deleteProduct = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const product = await prisma.product.delete({ where: { id: parseInt(id) } });
+  const { id } = idSchema.parse(req.params);
+  const product = await prisma.product.delete({ where: { id } });
   res.json({ success: true, message: "Product가 삭제되었습니다" });
 });

@@ -3,14 +3,15 @@ import { ORDERBY } from "../constants/common.js";
 import prisma from "../lib/prisma.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import createCommentSchema from "../schemas/comment.schema.js";
+import { idSchema } from "../schemas/common.schema.js";
 
 export const getProductCommentList = asyncHandler(async (req, res) => {
-  const { id } = req.params;
+  const { id } = idSchema.parse(req.params);
   const { limit = "3", sort = "recent", lastId } = req.query;
 
   const take = parseInt(limit) || 3;
   const orderBy = ORDERBY[sort] ?? { createdAt: "desc" };
-  const where = { productId: parseInt(id) };
+  const where = { productId: id };
 
   let queryOptions = {
     where,
@@ -42,22 +43,22 @@ export const getProductCommentList = asyncHandler(async (req, res) => {
 });
 
 export const postProductComment = asyncHandler(async (req, res) => {
-  const { id } = req.params;
+  const { id } = idSchema.parse(req.params);
   const { content } = createCommentSchema.parse(req.body);
 
   const comment = await prisma.comment.create({
-    data: { content: content, productId: parseInt(id) },
+    data: { content: content, productId: id },
   });
   res.json({ success: true, data: comment });
 });
 
 export const getArticleCommentList = asyncHandler(async (req, res) => {
-  const { id } = req.params;
+  const { id } = idSchema.parse(req.params);
   const { limit = "3", sort = "recent", lastId } = req.query;
 
   const take = parseInt(limit) || 3;
   const orderBy = ORDERBY[sort] ?? { createdAt: "desc" };
-  const where = { articleId: parseInt(id) };
+  const where = { articleId: id };
 
   let queryOptions = {
     where,
@@ -89,27 +90,27 @@ export const getArticleCommentList = asyncHandler(async (req, res) => {
 });
 
 export const postArticleComment = asyncHandler(async (req, res) => {
-  const { id } = req.params;
+  const { id } = idSchema.parse(req.params);
   const { content } = createCommentSchema.parse(req.body);
 
   const comment = await prisma.comment.create({
-    data: { content: content, articleId: parseInt(id) },
+    data: { content: content, articleId: id },
   });
   res.json({ success: true, data: comment });
 });
 
 export const patchComment = asyncHandler(async (req, res) => {
-  const { id } = req.params;
+  const { id } = idSchema.parse(req.params);
   const data = createCommentSchema.parse(req.body);
   const comment = await prisma.comment.update({
-    where: { id: parseInt(id) },
+    where: { id: id },
     data,
   });
   res.json({ success: true, data: comment });
 });
 
 export const deleteComment = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  await prisma.comment.delete({ where: { id: parseInt(id) } });
+  const { id } = idSchema.parse(req.params);
+  await prisma.comment.delete({ where: { id: id } });
   res.json({ success: true, message: "comment가 삭제되었습니다" });
 });
