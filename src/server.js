@@ -2,10 +2,10 @@ import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 
-import articleRouter from "./src/routes/article.js";
-import productRouter from "./src/routes/product.js";
-import commentRouter from "./src/routes/comment.js";
-import { PORT } from "./src/constants/common.js";
+import articleRouter from "./routes/article.js";
+import productRouter from "./routes/product.js";
+import commentRouter from "./routes/comment.js";
+import { PORT } from "./constants/common.js";
 
 dotenv.config();
 
