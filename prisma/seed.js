@@ -7,6 +7,7 @@ async function main() {
   await prisma.product.deleteMany();
   await prisma.tag.deleteMany();
   await prisma.article.deleteMany();
+  await prisma.comment.deleteMany();
   console.log("🧹 기존 데이터 삭제 완료");
 
   const products = [
@@ -162,6 +163,32 @@ async function main() {
   }
 
   console.log(`🌱 article 시드 데이터 ${articles.length}개 삽입 완료`);
+
+  const allArticles = await prisma.article.findMany();
+
+  const comments = [
+    { content: "혹시 사용기간이 어떻게 되실까요?" },
+    { content: "혹시 사용기간이 어떻게 되실까요?" },
+    { content: "혹시 사용기간이 어떻게 되실까요?" },
+    { content: "혹시 사용기간이 어떻게 되실까요?" },
+    { content: "혹시 사용기간이 어떻게 되실까요?" },
+  ];
+
+  for (const item of comments) {
+    const { content } = item;
+    await prisma.comment.create({
+      data: {
+        content,
+        articles: {
+          connect: { id: allArticles[0].id },
+        },
+      },
+    });
+  }
+
+  console.log(
+    `🌱 article에 대한 comment 시드 데이터 ${comments.length}개 삽입 완료`,
+  );
 }
 
 main()
