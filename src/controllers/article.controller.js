@@ -1,0 +1,57 @@
+import { success } from "zod";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import {
+  createArticleSchema,
+  updateArticleSchema,
+} from "../schemas/article.schema.js";
+import { idSchema } from "../schemas/common.schema.js";
+import * as ArticleService from "../services/article.service.js";
+
+export const getArticleList = asyncHandler(async (req, res) => {
+  const { page, limit, sort, search } = req.query;
+  const { articles, total, pageNum, take } = await ArticleService.findArticle(
+    page,
+    limit,
+    sort,
+    search,
+  );
+
+  res.json({
+    success: true,
+    page: pageNum,
+    limit: take,
+    total,
+    totalPages: Math.ceil(total / take),
+    filters: { search, sort },
+    data: articles,
+  });
+});
+
+export const getArticleByID = asyncHandler(async (req, res) => {
+  const { id } = idSchema.parse(req.params);
+  const article = await ArticleService.findArticleById(id);
+
+  res.json({
+    success: true,
+    data: article,
+  });
+});
+
+export const postArticle = asyncHandler(async (req, res) => {
+  const { title, content } = createArticleSchema.parse(req.body);
+  const article = await ArticleService.createArticle(title, content);
+  res.json({ success: true, data: article });
+});
+
+export const patchArticle = asyncHandler(async (req, res) => {
+  const { id } = idSchema.parse(req.params);
+  const data = updateArticleSchema.parse(req.body);
+  const article = await ArticleService.updateArticle(id, data);
+  res.json({ success: true, data: article });
+});
+
+export const deleteArticle = asyncHandler(async (req, res) => {
+  const { id } = idSchema.parse(req.params);
+  await ArticleService.deleteArticle(id);
+  res.json({ success: true, message: "article이 삭제되었습니다" });
+});
