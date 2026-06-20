@@ -8,22 +8,22 @@ import { idSchema } from "../schemas/common.schema.js";
 import * as ArticleService from "../services/article.service.js";
 
 export const getArticleList = asyncHandler(async (req, res) => {
-  const { page, limit, sort, search } = req.query;
+  const { page, pageSize, orderBy, keyword } = req.query;
   const { articles, total, pageNum, take } = await ArticleService.findArticle(
     page,
-    limit,
-    sort,
-    search,
+    pageSize,
+    orderBy,
+    keyword,
   );
 
   res.json({
     success: true,
     page: pageNum,
-    limit: take,
-    total,
+    pageSize: take,
+    totalCount: total,
     totalPages: Math.ceil(total / take),
-    filters: { search, sort },
-    data: articles,
+    filters: { keyword, orderBy },
+    list: articles,
   });
 });
 

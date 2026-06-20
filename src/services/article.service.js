@@ -3,26 +3,40 @@ import { ORDERBY } from "../constants/common.js";
 import { offsetPagination } from "../utils/pagination.js";
 import { NotFoundError } from "../utils/errors.js";
 
-export const findArticle = async (page, limit, sort, search) => {
-  const { pageNum, take, skip } = offsetPagination(page, limit);
+export const findArticle = async (page, pageSize, orderBy, keyword) => {
+  const { pageNum, take, skip } = offsetPagination(page, pageSize);
 
   const where = {};
 
-  if (search) {
+  if (keyword) {
     where.OR = [
-      { title: { contains: search, mode: "insensitive" } },
-      { content: { contains: search, mode: "insensitive" } },
+      { title: { contains: keyword, mode: "insensitive" } },
+      { content: { contains: keyword, mode: "insensitive" } },
     ];
   }
 
-  const orderBy = ORDERBY[sort] ?? { createdAt: "desc" };
+  const orderByQuery = ORDERBY[orderBy] ?? { createdAt: "desc" };
 
   const [articles, total] = await Promise.all([
-    prisma.article.findMany({ where, orderBy, skip, take }),
+    prisma.article.findMany({ where, orderBy: orderByQuery, skip, take }),
     prisma.article.count({ where }),
   ]);
 
-  return { articles, total, pageNum, take };
+  const formattedArticles = articles.map((article) => ({
+    id: article.id,
+    title: article.title,
+    content: article.content,
+    image: article.image,
+    likeCount: article.likeCount,
+    createdAt: article.createdAt,
+    updatedAt: article.updatedAt,
+    writer: {
+      id: article.userId,
+      nickname: article.writerName || "총명한 판다",
+    },
+  }));
+
+  return { articles: formattedArticles, total };
 };
 
 export const findArticleById = async (id) => {

@@ -133,31 +133,54 @@ async function main() {
     {
       title: "맥북 16인치 16기가 1테라 정도 사양이면 얼마에 팔아야하나요?",
       content: "맥북 16인치 16기가 1테라 정도 사양이면 얼마에 팔아야하나요?",
+      likeCount: 1520,
+      image: null,
+      writerName: "총명한 판다",
+      createdAt: new Date("2026-06-01T10:00:00Z"),
     },
     {
       title: "맥북 17인치 16기가 1테라 정도 사양이면 얼마에 팔아야하나요?",
       content: "맥북 17인치 16기가 1테라 정도 사양이면 얼마에 팔아야하나요?",
+      likeCount: 840,
+      image: null,
+      writerName: "행복한 대나무",
+      createdAt: new Date("2026-06-10T14:30:00Z"),
     },
     {
       title: "맥북 18인치 16기가 1테라 정도 사양이면 얼마에 팔아야하나요?",
       content: "맥북 18인치 16기가 1테라 정도 사양이면 얼마에 팔아야하나요?",
+      likeCount: 310,
+      image: null,
+      writerName: "동글동글 렛서판다",
+      createdAt: new Date("2026-06-15T09:15:00Z"),
     },
     {
       title: "맥북 19인치 16기가 1테라 정도 사양이면 얼마에 팔아야하나요?",
       content: "맥북 19인치 16기가 1테라 정도 사양이면 얼마에 팔아야하나요?",
+      likeCount: 45,
+      image: null,
+      writerName: "익명의 개발자",
+      createdAt: new Date("2026-06-19T23:50:00Z"),
     },
     {
       title: "맥북 20인치 16기가 1테라 정도 사양이면 얼마에 팔아야하나요?",
       content: "맥북 20인치 16기가 1테라 정도 사양이면 얼마에 팔아야하나요?",
+      likeCount: 12,
+      image: null,
+      writerName: "풀뜯는 판다",
+      createdAt: new Date("2026-06-20T11:20:00Z"),
     },
   ];
 
   for (const item of articles) {
-    const { title, content } = item;
     await prisma.article.create({
       data: {
-        title: title,
-        content: content,
+        title: item.title,
+        content: item.content,
+        likeCount: item.likeCount,
+        image: item.image,
+        writerName: item.writerName,
+        createdAt: item.createdAt,
       },
     });
   }
