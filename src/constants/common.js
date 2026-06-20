@@ -4,4 +4,5 @@ export const ORDERBY = {
   recent: { createdAt: "desc" },
   oldest: { createdAt: "asc" },
   title: { title: "asc" },
+  like: { likeCount: "desc" },
 };
