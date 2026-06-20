@@ -35,12 +35,20 @@ model Tag {
 }
 
 model Article {
-  id        Int       @id @default(autoincrement())
+  id        Int     @id @default(autoincrement())
   title     String
   content   String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  comments  Comment[]
+  image     String?
+  likeCount Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  //TODO User 테이블 생성시 관계 연결 및 수정 - userId & writerName
+  userId     String? @default(uuid())
+  writerName String? @default("총명한 판다")
+
+  comments Comment[]
 
   @@map("articles")
 }
