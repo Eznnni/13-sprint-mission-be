@@ -1,4 +1,4 @@
-@baseUrl = http://localhost:3000
+@baseUrl = http://localhost:3001
 @productUrl = /products
 @testId =/220
 @upsertId = /10001
