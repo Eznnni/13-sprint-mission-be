@@ -63,5 +63,9 @@ model Comment {
   product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId Int?
 
+  //TODO User 테이블 생성시 관계 연결 및 수정 - userId & writerName
+  userId     String? @default(uuid())
+  writerName String? @default("똑똑한 판다")
+
   @@map("comments")
 }
