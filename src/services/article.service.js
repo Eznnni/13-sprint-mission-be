@@ -32,7 +32,8 @@ export const findArticle = async (page, pageSize, orderBy, keyword) => {
     updatedAt: article.updatedAt,
     writer: {
       id: article.userId,
-      nickname: article.writerName || "총명한 판다",
+      nickname: article.writerName || "똑똑한 판다",
+      image: null, //TODO 추후 프로필 연동
     },
   }));
 

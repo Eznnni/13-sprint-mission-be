@@ -19,7 +19,7 @@ export const getProductCommentList = asyncHandler(async (req, res) => {
     total,
     nextCursor,
     sort: sort,
-    data: comments,
+    list: comments,
   });
 });
 
@@ -41,9 +41,9 @@ export const getArticleCommentList = asyncHandler(async (req, res) => {
     success: true,
     limit: queryOptions.take,
     total,
-    nextCursor,
+    nextCursor: nextCursor || 0,
     sort: sort,
-    data: comments,
+    list: comments,
   });
 });
 

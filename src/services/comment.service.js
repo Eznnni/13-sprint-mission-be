@@ -12,10 +12,22 @@ export const findProductCommentList = async (id, limit, sort, lastId) => {
     prisma.comment.count({ where }),
   ]);
 
+  const formattedComments = comments.map((comment) => ({
+    id: comment.id,
+    content: comment.content,
+    createdAt: comment.createdAt,
+    updatedAt: comment.updatedAt,
+    writer: {
+      id: comment.userId || 1,
+      nickname: comment.writerName || "총명한 판다",
+      image: null, //TODO 추후 프로필 연동
+    },
+  }));
+
   const nextCursor =
     comments.length > 0 ? comments[comments.length - 1].id : null;
 
-  return { comments, total, queryOptions, nextCursor };
+  return { comments: formattedComments, total, queryOptions, nextCursor };
 };
 
 export const createProductComment = async (content, id) => {
@@ -35,10 +47,22 @@ export const findArticleCommentList = async (id, limit, sort, lastId) => {
     prisma.comment.count({ where }),
   ]);
 
+  const formattedComments = comments.map((comment) => ({
+    id: comment.id,
+    content: comment.content,
+    createdAt: comment.createdAt,
+    updatedAt: comment.updatedAt,
+    writer: {
+      id: comment.userId || 1,
+      nickname: comment.writerName || "총명한 판다",
+      image: null, // TODO 추후 프로필 연동
+    },
+  }));
+
   const nextCursor =
     comments.length > 0 ? comments[comments.length - 1].id : null;
 
-  return { comments, total, queryOptions, nextCursor };
+  return { comments: formattedComments, total, queryOptions, nextCursor };
 };
 
 export const createArticleComment = async (content, id) => {
