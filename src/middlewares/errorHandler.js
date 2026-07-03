@@ -4,11 +4,26 @@ export default function errorHandler(error, req, res, next) {
     error.name === "JsonWebTokenError" ||
     error.name === "TokenExpiredError"
   ) {
-    console.error(`🔒 Auth Error: ${error.message}`);
+    console.error(`🔒 인증 에러: ${error.message}`);
     return res.status(401).json({
       path: req.path,
       method: req.method,
       message: error.message ?? "invalid token...",
+      date: new Date(),
+    });
+  }
+
+  if (error.name === "ZodError" || error.issues) {
+    const zodIssues = error.issues || [];
+
+    return res.status(400).json({
+      path: req.path,
+      method: req.method,
+      message: "입력값 유효성 검증에 실패했습니다.",
+      data: zodIssues.map((e) => ({
+        field: e.path.join("."),
+        message: e.message,
+      })),
       date: new Date(),
     });
   }

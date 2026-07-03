@@ -5,10 +5,21 @@ POST {{baseUrl}}/auth/signup
 Content-Type: application/json
 
 {
-  "email": "unin5412@gmail.com",
-  "nickname": "김은진",
+  "email": "duck@gmail.com",
+  "nickname": "오리",
   "password": "123456789",
-  "passwordConfirm": "123456789"
+  "passwordConfirmation": "123456789"
+}
+
+###회원가입하기 - 일부 필드 누락
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "email": "duckk@gmail.com",
+  "nickname": "",
+  "password": "",
+  "passwordConfirmation": "123456789"
 }
 
 ###로그인하기
