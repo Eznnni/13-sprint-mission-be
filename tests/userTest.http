@@ -30,3 +30,123 @@ Content-Type: application/json
   "email": "unin5412@gmail.com",
   "password": "123456789"
 }
+
+###로그인하기
+POST {{baseUrl}}/auth/signin
+Content-Type: application/json
+
+{
+  "email": "duck@gmail.com",
+  "password": "123456789"
+}
+
+###상품 accessToken으로 등록
+POST {{baseUrl}}/products
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MzA5Mjk2MiwiZXhwIjoxNzgzMDk2NTYyfQ.w8NDxdBNBDO9EeLpzAnxMpceAZf8sYVb4vP897DodpQ
+Content-Type: application/json
+
+{
+  "name": "맥북 에어 M2",
+  "description": "미개봉 새상품 맥북 에어 팝니다.",
+  "price": 1200000
+}
+
+###상품 조회
+GET {{baseUrl}}/products
+Content-Type: application/json
+
+###상품 accessToken으로 수정
+PATCH {{baseUrl}}/products/2
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MzA5Mjk2MiwiZXhwIjoxNzgzMDk2NTYyfQ.w8NDxdBNBDO9EeLpzAnxMpceAZf8sYVb4vP897DodpQ
+Content-Type: application/json
+
+{
+  "description": "개봉만 해본 새상품 맥북 에어 팝니다."
+}
+
+###상품 accessToken으로 삭제
+DELETE {{baseUrl}}/products/2
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MzA5Mjk2MiwiZXhwIjoxNzgzMDk2NTYyfQ.w8NDxdBNBDO9EeLpzAnxMpceAZf8sYVb4vP897DodpQ
+Content-Type: application/json
+
+###게시물 accessToken으로 등록
+POST {{baseUrl}}/articles
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MzA5Mjk2MiwiZXhwIjoxNzgzMDk2NTYyfQ.w8NDxdBNBDO9EeLpzAnxMpceAZf8sYVb4vP897DodpQ
+Content-Type: application/json
+
+{
+  "title": "맥북 에어 M2 얼마정도에 팔 수 있을까요?",
+  "content": "개봉만 해본 상품인데 가격이 궁금해요"
+}
+
+###게시물 accessToken으로 수정
+PATCH {{baseUrl}}/articles/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MzA5Mjk2MiwiZXhwIjoxNzgzMDk2NTYyfQ.w8NDxdBNBDO9EeLpzAnxMpceAZf8sYVb4vP897DodpQ
+Content-Type: application/json
+
+{
+  "title": "개봉만 한 맥북 에어 M2 얼마정도에 팔 수 있을까요?"
+}
+
+###게시물 accessToken으로 삭제
+DELETE {{baseUrl}}/articles/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MzA5Mjk2MiwiZXhwIjoxNzgzMDk2NTYyfQ.w8NDxdBNBDO9EeLpzAnxMpceAZf8sYVb4vP897DodpQ
+Content-Type: application/json
+
+###댓글 등록
+POST {{baseUrl}}/products/2/comments
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzA5NjI5MiwiZXhwIjoxNzgzMDk5ODkyfQ.XGVUsLnato3H2lPM8oRlUPNUrHW2VgQry1gmqgmU-Ow
+Content-Type: application/json
+
+{
+  "content": "저도 궁금해요"
+}
+
+###댓글 조회
+GET {{baseUrl}}/products/2/comments
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzA5NjI5MiwiZXhwIjoxNzgzMDk5ODkyfQ.XGVUsLnato3H2lPM8oRlUPNUrHW2VgQry1gmqgmU-Ow
+Content-Type: application/json
+
+###댓글 수정
+PATCH {{baseUrl}}/comments/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzA5NjI5MiwiZXhwIjoxNzgzMDk5ODkyfQ.XGVUsLnato3H2lPM8oRlUPNUrHW2VgQry1gmqgmU-Ow
+Content-Type: application/json
+
+{
+  "content": "저도 궁금해요!!"
+}
+
+###댓글 삭제
+DELETE {{baseUrl}}/comments/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzA5NjI5MiwiZXhwIjoxNzgzMDk5ODkyfQ.XGVUsLnato3H2lPM8oRlUPNUrHW2VgQry1gmqgmU-Ow
+Content-Type: application/json
+
+---
+
+###댓글 등록
+POST {{baseUrl}}/articles/2/comments
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzA5NjI5MiwiZXhwIjoxNzgzMDk5ODkyfQ.XGVUsLnato3H2lPM8oRlUPNUrHW2VgQry1gmqgmU-Ow
+Content-Type: application/json
+
+{
+  "content": "저도 궁금해요"
+}
+
+###댓글 조회
+GET {{baseUrl}}/articles/2/comments
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzA5NjI5MiwiZXhwIjoxNzgzMDk5ODkyfQ.XGVUsLnato3H2lPM8oRlUPNUrHW2VgQry1gmqgmU-Ow
+Content-Type: application/json
+
+###댓글 수정
+PATCH {{baseUrl}}/comments/2
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzA5NjI5MiwiZXhwIjoxNzgzMDk5ODkyfQ.XGVUsLnato3H2lPM8oRlUPNUrHW2VgQry1gmqgmU-Ow
+Content-Type: application/json
+
+{
+  "content": "저도 궁금해요!!"
+}
+
+###댓글 삭제
+DELETE {{baseUrl}}/comments/2
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzA5NjI5MiwiZXhwIjoxNzgzMDk5ODkyfQ.XGVUsLnato3H2lPM8oRlUPNUrHW2VgQry1gmqgmU-Ow
+Content-Type: application/json

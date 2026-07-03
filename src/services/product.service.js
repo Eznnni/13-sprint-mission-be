@@ -1,4 +1,4 @@
-import prisma from "../lib/prisma.js";
+import prisma from "../config/prisma.js";
 import { ORDERBY } from "../constants/common.js";
 import { offsetPagination } from "../utils/pagination.js";
 import { NotFoundError } from "../utils/errors.js";
@@ -18,16 +18,46 @@ export const findProduct = async (page, limit, sort, search) => {
   const orderBy = ORDERBY[sort] ?? { createdAt: "desc" };
 
   const [products, total] = await Promise.all([
-    prisma.product.findMany({ where, orderBy, skip, take }),
+    prisma.product.findMany({
+      where,
+      orderBy,
+      skip,
+      take,
+      include: {
+        writer: true,
+        tags: true,
+      },
+    }),
     prisma.product.count({ where }),
   ]);
 
-  return { products, total, pageNum, take };
+  const formattedProducts = products.map((product) => ({
+    id: product.id,
+    name: product.name,
+    description: product.description,
+    price: product.price,
+    image: product.image,
+    likeCount: product.likeCount,
+    createdAt: product.createdAt,
+    updatedAt: product.updatedAt,
+    tags: product.tags.map((tag) => tag.name),
+    writer: {
+      id: product.writer.id,
+      nickname: product.writer.nickname,
+      image: product.writer.image,
+    },
+  }));
+
+  return { products: formattedProducts, total, pageNum, take };
 };
 
 export const findProductById = async (id) => {
   const product = await prisma.product.findUnique({
     where: { id },
+    include: {
+      writer: true,
+      tags: true,
+    },
   });
 
   if (!product) {
@@ -38,10 +68,11 @@ export const findProductById = async (id) => {
 };
 
 export const createProduct = async (newProduct) => {
-  const { tags, ...rest } = newProduct;
+  const { tags, writerId, ...rest } = newProduct;
   const product = await prisma.product.create({
     data: {
       ...rest,
+      writerId: writerId,
       tags: {
         connectOrCreate: tags?.map((tag) => ({
           where: { name: tag },
@@ -71,6 +102,7 @@ export const updateOrCreateProduct = async (
   description,
   tags,
   price,
+  writerId,
 ) => {
   const product = await prisma.product.upsert({
     where: { id: id },
@@ -91,6 +123,7 @@ export const updateOrCreateProduct = async (
       name,
       description,
       price: parseInt(price),
+      writerId: writerId,
       tags: {
         connectOrCreate: tags.map((tag) => ({
           where: { name: tag },

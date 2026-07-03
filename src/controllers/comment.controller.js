@@ -26,7 +26,12 @@ export const getProductCommentList = asyncHandler(async (req, res) => {
 export const postProductComment = asyncHandler(async (req, res) => {
   const { id } = idSchema.parse(req.params);
   const { content } = createCommentSchema.parse(req.body);
-  const comment = await CommentService.createProductComment(content, id);
+  const writerId = req.auth.userId;
+  const comment = await CommentService.createProductComment(
+    content,
+    id,
+    writerId,
+  );
 
   res.json({ success: true, data: comment });
 });
@@ -50,7 +55,12 @@ export const getArticleCommentList = asyncHandler(async (req, res) => {
 export const postArticleComment = asyncHandler(async (req, res) => {
   const { id } = idSchema.parse(req.params);
   const { content } = createCommentSchema.parse(req.body);
-  const comment = await CommentService.createArticleComment(content, id);
+  const writerId = req.auth.userId;
+  const comment = await CommentService.createArticleComment(
+    content,
+    id,
+    writerId,
+  );
 
   res.json({ success: true, data: comment });
 });

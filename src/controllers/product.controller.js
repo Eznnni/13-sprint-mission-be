@@ -34,8 +34,16 @@ export const getProductBYId = asyncHandler(async (req, res) => {
 });
 
 export const postProduct = asyncHandler(async (req, res) => {
-  const newProduct = await createProductSchema.parse(req.body);
-  const product = await ProductService.createProduct(newProduct);
+  const validatedBody = await createProductSchema.parse(req.body);
+  const writerId = req.auth.userId;
+
+  const product = await ProductService.createProduct({
+    name: validatedBody.name,
+    description: validatedBody.description,
+    price: validatedBody.price,
+    tags: validatedBody.tags,
+    writerId: writerId,
+  });
 
   res.json({ success: true, data: product });
 });
@@ -51,6 +59,7 @@ export const patchProduct = asyncHandler(async (req, res) => {
 export const upsertProduct = asyncHandler(async (req, res) => {
   const { id } = idSchema.parse(req.params);
   const { name, description, tags, price } = req.body;
+  const writerId = req.auth.userId;
 
   const product = await ProductService.updateOrCreateProduct(
     id,
@@ -58,6 +67,7 @@ export const upsertProduct = asyncHandler(async (req, res) => {
     description,
     tags,
     price,
+    writerId,
   );
 
   res.json({ success: true, data: product });

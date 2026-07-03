@@ -38,8 +38,15 @@ export const getArticleByID = asyncHandler(async (req, res) => {
 });
 
 export const postArticle = asyncHandler(async (req, res) => {
-  const { title, content } = createArticleSchema.parse(req.body);
-  const article = await ArticleService.createArticle(title, content);
+  const validatedBody = await createArticleSchema.parse(req.body);
+  const writerId = req.auth.userId;
+
+  const article = await ArticleService.createArticle({
+    title: validatedBody.title,
+    content: validatedBody.content,
+    writerId: writerId,
+  });
+
   res.json({ success: true, data: article });
 });
 
@@ -47,6 +54,7 @@ export const patchArticle = asyncHandler(async (req, res) => {
   const { id } = idSchema.parse(req.params);
   const data = updateArticleSchema.parse(req.body);
   const article = await ArticleService.updateArticle(id, data);
+
   res.json({ success: true, data: article });
 });
 

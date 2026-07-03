@@ -8,7 +8,14 @@ export const findProductCommentList = async (id, limit, sort, lastId) => {
   const where = { productId: id };
 
   const [comments, total] = await Promise.all([
-    prisma.comment.findMany({ ...queryOptions, where, orderBy }),
+    prisma.comment.findMany({
+      ...queryOptions,
+      where,
+      orderBy,
+      include: {
+        writer: true,
+      },
+    }),
     prisma.comment.count({ where }),
   ]);
 
@@ -18,9 +25,9 @@ export const findProductCommentList = async (id, limit, sort, lastId) => {
     createdAt: comment.createdAt,
     updatedAt: comment.updatedAt,
     writer: {
-      id: comment.userId || 1,
-      nickname: comment.writerName || "총명한 판다",
-      image: null, //TODO 추후 프로필 연동
+      id: comment.writer.id,
+      nickname: comment.writer.nickname,
+      image: comment.writer.image,
     },
   }));
 
@@ -30,9 +37,9 @@ export const findProductCommentList = async (id, limit, sort, lastId) => {
   return { comments: formattedComments, total, queryOptions, nextCursor };
 };
 
-export const createProductComment = async (content, id) => {
+export const createProductComment = async (content, id, writerId) => {
   const comment = await prisma.comment.create({
-    data: { content: content, productId: id },
+    data: { content: content, productId: id, writerId: writerId },
   });
   return comment;
 };
@@ -43,7 +50,14 @@ export const findArticleCommentList = async (id, limit, sort, lastId) => {
   const where = { articleId: id };
 
   const [comments, total] = await Promise.all([
-    prisma.comment.findMany({ ...queryOptions, where, orderBy }),
+    prisma.comment.findMany({
+      ...queryOptions,
+      where,
+      orderBy,
+      include: {
+        writer: true,
+      },
+    }),
     prisma.comment.count({ where }),
   ]);
 
@@ -53,9 +67,9 @@ export const findArticleCommentList = async (id, limit, sort, lastId) => {
     createdAt: comment.createdAt,
     updatedAt: comment.updatedAt,
     writer: {
-      id: comment.userId || 1,
-      nickname: comment.writerName || "총명한 판다",
-      image: null, // TODO 추후 프로필 연동
+      id: comment.writer.id,
+      nickname: comment.writer.nickname,
+      image: comment.writer.image,
     },
   }));
 
@@ -65,9 +79,9 @@ export const findArticleCommentList = async (id, limit, sort, lastId) => {
   return { comments: formattedComments, total, queryOptions, nextCursor };
 };
 
-export const createArticleComment = async (content, id) => {
+export const createArticleComment = async (content, id, writerId) => {
   const comment = await prisma.comment.create({
-    data: { content: content, articleId: id },
+    data: { content: content, articleId: id, writerId: writerId },
   });
 
   return comment;

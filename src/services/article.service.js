@@ -18,7 +18,15 @@ export const findArticle = async (page, pageSize, orderBy, keyword) => {
   const orderByQuery = ORDERBY[orderBy] ?? { createdAt: "desc" };
 
   const [articles, total] = await Promise.all([
-    prisma.article.findMany({ where, orderBy: orderByQuery, skip, take }),
+    prisma.article.findMany({
+      where,
+      orderBy: orderByQuery,
+      skip,
+      take,
+      include: {
+        writer: true,
+      },
+    }),
     prisma.article.count({ where }),
   ]);
 
@@ -31,9 +39,9 @@ export const findArticle = async (page, pageSize, orderBy, keyword) => {
     createdAt: article.createdAt,
     updatedAt: article.updatedAt,
     writer: {
-      id: article.userId,
-      nickname: article.writerName || "똑똑한 판다",
-      image: null, //TODO 추후 프로필 연동
+      id: article.writer.id,
+      nickname: article.writer.nickname,
+      image: article.writer.image,
     },
   }));
 
@@ -43,6 +51,7 @@ export const findArticle = async (page, pageSize, orderBy, keyword) => {
 export const findArticleById = async (id) => {
   const article = await prisma.article.findUnique({
     where: { id },
+    include: { writer: true },
   });
 
   if (!article) {
@@ -52,9 +61,13 @@ export const findArticleById = async (id) => {
   return article;
 };
 
-export const createArticle = async (title, content) => {
+export const createArticle = async (articleData) => {
   const article = await prisma.article.create({
-    data: { title: title, content: content },
+    data: {
+      title: articleData.title,
+      content: articleData.content,
+      writerId: articleData.writerId,
+    },
   });
 
   return article;
@@ -63,7 +76,10 @@ export const createArticle = async (title, content) => {
 export const updateArticle = async (id, data) => {
   const article = await prisma.article.update({
     where: { id },
-    data,
+    data: {
+      title: data.title,
+      content: data.content,
+    },
   });
 
   return article;
@@ -71,6 +87,5 @@ export const updateArticle = async (id, data) => {
 
 export const deleteArticle = async (id) => {
   const article = await prisma.article.delete({ where: { id } });
-
   return;
 };
