@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 import articleRouter from "./routes/article.js";
 import productRouter from "./routes/product.js";
@@ -15,6 +16,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 
 app.use("/products", productRouter);
 app.use("/articles", articleRouter);
@@ -23,7 +25,6 @@ app.use("/auth", userRouter);
 
 app.use(errorHandler);
 
-const port = process.env.PORT ?? 3001;
 app.listen(PORT, () => {
   console.log(`✅ Server running on http://localhost:${PORT}`);
 });

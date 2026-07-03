@@ -6,5 +6,16 @@ Content-Type: application/json
 
 {
   "email": "unin5412@gmail.com",
-  "nickname": "김은진"
+  "nickname": "김은진",
+  "password": "123456789",
+  "passwordConfirm": "123456789"
+}
+
+###로그인하기
+POST {{baseUrl}}/auth/signin
+Content-Type: application/json
+
+{
+  "email": "unin5412@gmail.com",
+  "password": "123456789"
 }
