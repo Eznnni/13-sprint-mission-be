@@ -3,12 +3,12 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
+import { PORT } from "./constants/common.js";
+import errorHandler from "./middlewares/errorHandler.js";
 import articleRouter from "./routes/article.js";
 import productRouter from "./routes/product.js";
 import commentRouter from "./routes/comment.js";
-import { PORT } from "./constants/common.js";
-import errorHandler from "./middlewares/errorHandler.js";
-import userRouter from "./routes/userRouter.js";
+import authRouter from "./routes/authRouter.js";
 
 dotenv.config();
 
@@ -21,7 +21,7 @@ app.use(cookieParser());
 app.use("/products", productRouter);
 app.use("/articles", articleRouter);
 app.use("/comments", commentRouter);
-app.use("/auth", userRouter);
+app.use("/auth", authRouter);
 
 app.use(errorHandler);
 

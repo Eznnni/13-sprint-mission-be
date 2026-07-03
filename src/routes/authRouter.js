@@ -4,9 +4,9 @@ import auth from "../middlewares/auth.js";
 import { validate } from "../middlewares/validate.js";
 import { signInSchema, signUpSchema } from "../schemas/user.schema.js";
 
-const userRouter = express.Router();
+const authRouter = express.Router();
 
-userRouter.post("/signup", validate(signUpSchema), async (req, res, next) => {
+authRouter.post("/signup", validate(signUpSchema), async (req, res, next) => {
   try {
     const { email, nickname, password, passwordConfirmation } = req.body;
 
@@ -17,7 +17,7 @@ userRouter.post("/signup", validate(signUpSchema), async (req, res, next) => {
   }
 });
 
-userRouter.post("/signin", validate(signInSchema), async (req, res, next) => {
+authRouter.post("/signin", validate(signInSchema), async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const user = await userService.getUser(email, password);
@@ -38,7 +38,7 @@ userRouter.post("/signin", validate(signInSchema), async (req, res, next) => {
   }
 });
 
-userRouter.post(
+authRouter.post(
   "/refresh-token",
   auth.verifyRefreshToken,
   async (req, res, next) => {
@@ -62,4 +62,4 @@ userRouter.post(
   },
 );
 
-export default userRouter;
+export default authRouter;
