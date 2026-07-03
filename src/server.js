@@ -7,6 +7,7 @@ import productRouter from "./routes/product.js";
 import commentRouter from "./routes/comment.js";
 import { PORT } from "./constants/common.js";
 import errorHandler from "./middlewares/errorHandler.js";
+import userRouter from "./routes/userRouter.js";
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use("/products", productRouter);
 app.use("/articles", articleRouter);
 app.use("/comments", commentRouter);
+app.use("/auth", userRouter);
 
 app.use(errorHandler);
 

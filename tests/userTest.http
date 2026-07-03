@@ -1,0 +1,10 @@
+@baseUrl = http://localhost:3001
+
+###회원가입하기
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "email": "unin5412@gmail.com",
+  "nickname": "김은진"
+}

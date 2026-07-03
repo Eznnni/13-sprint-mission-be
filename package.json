@@ -32,6 +32,7 @@
   "homepage": "https://github.com/Eznnni/13-sprint-mission-be#readme",
   "dependencies": {
     "@prisma/client": "^6.19.3",
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "cross-env": "^10.1.0",
     "dotenv": "^17.4.2",
