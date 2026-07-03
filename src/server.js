@@ -9,6 +9,7 @@ import articleRouter from "./routes/article.js";
 import productRouter from "./routes/product.js";
 import commentRouter from "./routes/comment.js";
 import authRouter from "./routes/authRouter.js";
+import userRouter from "./routes/userRouter.js";
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use("/products", productRouter);
 app.use("/articles", articleRouter);
 app.use("/comments", commentRouter);
 app.use("/auth", authRouter);
+app.use("/users/me", userRouter);
 
 app.use(errorHandler);
 

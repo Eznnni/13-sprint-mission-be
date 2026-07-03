@@ -40,6 +40,11 @@ Content-Type: application/json
   "password": "123456789"
 }
 
+###내 정보 가져오기
+GET {{baseUrl}}/users/me
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzA5OTU4MywiZXhwIjoxNzgzMTAzMTgzfQ.UTWn1YFktrMZM16EabozCsYRK3WY4jOgAfzMMWxIwxE
+
 ###상품 accessToken으로 등록
 POST {{baseUrl}}/products
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MzA5Mjk2MiwiZXhwIjoxNzgzMDk2NTYyfQ.w8NDxdBNBDO9EeLpzAnxMpceAZf8sYVb4vP897DodpQ

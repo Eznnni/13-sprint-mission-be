@@ -40,6 +40,18 @@ async function getUser(email, password) {
   return filterSensitiveUserData(user);
 }
 
+async function getMe(userId) {
+  const user = await userRepository.findById(parseInt(userId, 10));
+
+  if (!user) {
+    const error = new Error("존재하지 않는 유저입니다.");
+    error.code = 404;
+    throw error;
+  }
+
+  return filterSensitiveUserData(user);
+}
+
 async function verifyPassword(inputPassword, password) {
   const isMatch = await bcrypt.compare(inputPassword, password);
   if (!isMatch) {
@@ -90,4 +102,5 @@ export default {
   createToken,
   updateUser,
   refreshToken,
+  getMe,
 };
