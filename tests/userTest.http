@@ -47,7 +47,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhd
 
 ###상품 accessToken으로 등록
 POST {{baseUrl}}/products
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MzA5Mjk2MiwiZXhwIjoxNzgzMDk2NTYyfQ.w8NDxdBNBDO9EeLpzAnxMpceAZf8sYVb4vP897DodpQ
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzEzMjM2MCwiZXhwIjoxNzgzMTM1OTYwfQ.B_ThtOpsvt1f-zDMO0FN9XoaCrJcLbP6ndIJlWM4no4
 Content-Type: application/json
 
 {
@@ -155,3 +155,56 @@ Content-Type: application/json
 DELETE {{baseUrl}}/comments/2
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzA5NjI5MiwiZXhwIjoxNzgzMDk5ODkyfQ.XGVUsLnato3H2lPM8oRlUPNUrHW2VgQry1gmqgmU-Ow
 Content-Type: application/json
+
+###상품 + 이미지
+POST {{baseUrl}}/products
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzEzMjgzNywiZXhwIjoxNzgzMTM2NDM3fQ.gEhUsXdLFP1n_1Cbxy15-2tMGHtM6y3k7tXYdT1_o5Y
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="name"
+
+실전 멀터 상품
+------WebKitFormBoundary
+Content-Disposition: form-data; name="description"
+
+Multer 다중 이미지 업로드 테스트 상품입니다.
+------WebKitFormBoundary
+Content-Disposition: form-data; name="price"
+
+1200000
+------WebKitFormBoundary
+Content-Disposition: form-data; name="tags"
+
+["전자제품", "노트북"]
+------WebKitFormBoundary
+Content-Disposition: form-data; name="images"; filename="test01.jpg"
+Content-Type: image/jpeg
+
+< ./src/test01.jpg
+------WebKitFormBoundary
+Content-Disposition: form-data; name="images"; filename="test02.jpg"
+Content-Type: image/jpeg
+
+< ./src/test02.jpg
+------WebKitFormBoundary--
+
+###상품 수정
+PATCH {{baseUrl}}/products/4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzEzMjgzNywiZXhwIjoxNzgzMTM2NDM3fQ.gEhUsXdLFP1n_1Cbxy15-2tMGHtM6y3k7tXYdT1_o5Y
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="description"
+
+수정 완료! 미개봉 맥북 에어 싸게 넘깁니다.
+------WebKitFormBoundary
+Content-Disposition: form-data; name="price"
+
+1150000
+------WebKitFormBoundary
+Content-Disposition: form-data; name="images"; filename="test02.jpg"
+Content-Type: image/jpeg
+
+< ./src/test02.jpg
+------WebKitFormBoundary--

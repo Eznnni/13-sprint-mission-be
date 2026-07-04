@@ -34,8 +34,21 @@ export const getProductBYId = asyncHandler(async (req, res) => {
 });
 
 export const postProduct = asyncHandler(async (req, res) => {
+  if (req.body.price) req.body.price = parseInt(req.body.price);
+  if (typeof req.body.tags === "string") {
+    try {
+      req.body.tags = JSON.parse(req.body.tags);
+    } catch (e) {
+      req.body.tags = [];
+    }
+  }
+
   const validatedBody = await createProductSchema.parse(req.body);
   const writerId = req.auth.userId;
+
+  const imagePaths = req.files
+    ? req.files.map((file) => `/products/${file.filename}`)
+    : [];
 
   const product = await ProductService.createProduct({
     name: validatedBody.name,
@@ -43,6 +56,7 @@ export const postProduct = asyncHandler(async (req, res) => {
     price: validatedBody.price,
     tags: validatedBody.tags,
     writerId: writerId,
+    images: imagePaths,
   });
 
   res.json({ success: true, data: product });
@@ -50,8 +64,27 @@ export const postProduct = asyncHandler(async (req, res) => {
 
 export const patchProduct = asyncHandler(async (req, res) => {
   const { id } = idSchema.parse(req.params);
-  const data = updateProductSchema.parse(req.body);
-  const product = await ProductService.updateProduct(id, data);
+  if (req.body.price) req.body.price = parseInt(req.body.price);
+
+  if (typeof req.body.tags === "string") {
+    try {
+      req.body.tags = JSON.parse(req.body.tags);
+    } catch (e) {
+      req.body.tags = undefined;
+    }
+  }
+
+  const validatedBody = await updateProductSchema.parse(req.body);
+
+  let imagePaths = undefined;
+  if (req.files && req.files.length > 0) {
+    imagePaths = req.files.map((file) => `/products/${file.filename}`);
+  }
+
+  const product = await ProductService.updateProduct(id, {
+    ...validatedBody,
+    images: imagePaths,
+  });
 
   res.json({ success: true, data: product });
 });

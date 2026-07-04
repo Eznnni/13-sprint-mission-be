@@ -18,6 +18,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
+app.use("/products", express.static("uploads/"));
 
 app.use("/products", productRouter);
 app.use("/articles", articleRouter);

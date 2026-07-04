@@ -68,10 +68,11 @@ export const findProductById = async (id) => {
 };
 
 export const createProduct = async (newProduct) => {
-  const { tags, writerId, ...rest } = newProduct;
+  const { tags, images, writerId, ...rest } = newProduct;
   const product = await prisma.product.create({
     data: {
       ...rest,
+      image: images ?? [],
       writerId: writerId,
       tags: {
         connectOrCreate: tags?.map((tag) => ({
@@ -89,9 +90,28 @@ export const createProduct = async (newProduct) => {
 };
 
 export const updateProduct = async (id, data) => {
+  const { tags, images, ...rest } = data;
+
+  const updateData = { ...rest };
+
+  if (images !== undefined) {
+    updateData.image = images;
+  }
+
+  if (tags) {
+    updateData.tags = {
+      set: [],
+      connectOrCreate: tags.map((tag) => ({
+        where: { name: tag },
+        create: { name: tag },
+      })),
+    };
+  }
+
   const product = await prisma.product.update({
     where: { id },
-    data,
+    data: updateData,
+    include: { tags: true },
   });
   return product;
 };
