@@ -28,9 +28,10 @@ export const getArticleList = asyncHandler(async (req, res) => {
 });
 
 export const getArticleByID = asyncHandler(async (req, res) => {
-  const { id } = idSchema.parse(req.params);
-  const article = await ArticleService.findArticleById(id);
+  const { id: articleId } = idSchema.parse(req.params);
+  const userId = req.auth.userId;
 
+  const article = await ArticleService.findArticleById(articleId, userId);
   res.json({
     success: true,
     data: article,
@@ -62,4 +63,20 @@ export const deleteArticle = asyncHandler(async (req, res) => {
   const { id } = idSchema.parse(req.params);
   await ArticleService.deleteArticle(id);
   res.json({ success: true, message: "article이 삭제되었습니다" });
+});
+
+export const postArticleLike = asyncHandler(async (req, res) => {
+  const { id: articleId } = idSchema.parse(req.params);
+  const userId = req.auth.userId;
+
+  const result = await ArticleService.addLikeArticle(articleId, userId);
+  res.status(200).json(result);
+});
+
+export const deleteArticleLike = asyncHandler(async (req, res) => {
+  const { id: articleId } = idSchema.parse(req.params);
+  const userId = req.auth.userId;
+
+  const result = await ArticleService.unLikeArticle(articleId, userId);
+  res.status(200).json(result);
 });

@@ -47,7 +47,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhd
 
 ###상품 accessToken으로 등록
 POST {{baseUrl}}/products
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzEzMjM2MCwiZXhwIjoxNzgzMTM1OTYwfQ.B_ThtOpsvt1f-zDMO0FN9XoaCrJcLbP6ndIJlWM4no4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MzMxODA0NiwiZXhwIjoxNzgzMzIxNjQ2fQ.wvShYCkPdd8pg96D5Ub6suBeDW8hQZh2GmQPcBeEp10
 Content-Type: application/json
 
 {
@@ -76,7 +76,7 @@ Content-Type: application/json
 
 ###게시물 accessToken으로 등록
 POST {{baseUrl}}/articles
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MzA5Mjk2MiwiZXhwIjoxNzgzMDk2NTYyfQ.w8NDxdBNBDO9EeLpzAnxMpceAZf8sYVb4vP897DodpQ
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzMyMDQ2MSwiZXhwIjoxNzgzMzI0MDYxfQ.zr0u3OcL7_3DA4WH6rzFs0XzgII_s1yPHOPKc2XGqGU
 Content-Type: application/json
 
 {

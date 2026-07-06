@@ -5,6 +5,7 @@ import {
 } from "../schemas/product.schema.js";
 import { idSchema } from "../schemas/common.schema.js";
 import * as ProductService from "../services/product.service.js";
+import auth from "../middlewares/auth.js";
 
 export const getProductList = asyncHandler(async (req, res) => {
   const { page, limit, sort, search } = req.query;
@@ -27,9 +28,10 @@ export const getProductList = asyncHandler(async (req, res) => {
 });
 
 export const getProductBYId = asyncHandler(async (req, res) => {
-  const { id } = idSchema.parse(req.params);
-  const product = await ProductService.findProductById(id);
+  const { id: productId } = idSchema.parse(req.params);
+  const userId = req.auth.userId;
 
+  const product = await ProductService.findProductById(productId, userId);
   res.json({ success: true, data: product });
 });
 
@@ -111,4 +113,20 @@ export const deleteProduct = asyncHandler(async (req, res) => {
   await ProductService.deleteProduct(id);
 
   res.json({ success: true, message: "Product가 삭제되었습니다" });
+});
+
+export const postProductLike = asyncHandler(async (req, res) => {
+  const { id: productId } = idSchema.parse(req.params);
+  const userId = req.auth.userId;
+
+  const result = await ProductService.addLikeProduct(productId, userId);
+  res.status(200).json(result);
+});
+
+export const deleteProductLike = asyncHandler(async (req, res) => {
+  const { id: productId } = idSchema.parse(req.params);
+  const userId = req.auth.userId;
+
+  const result = await ProductService.unLikeProduct(productId, userId);
+  res.status(200).json(result);
 });

@@ -1,6 +1,7 @@
 import userRepository from "../repositories/userRepository.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import prisma from "../config/prisma.js";
 
 async function createUser(user) {
   const existedUser = await userRepository.findByEmail(user.email);
@@ -96,6 +97,61 @@ async function refreshToken(userId, refreshToken) {
   };
 }
 
+async function getMyLikes({ userId, page, pageSize, keyword }) {
+  const skip = (page - 1) * pageSize;
+  const take = pageSize;
+
+  const productWhereCondition = keyword
+    ? {
+        OR: [
+          { name: { contains: keyword, mode: "insensitive" } },
+          { description: { contains: keyword, mode: "insensitive" } },
+        ],
+      }
+    : {};
+
+  const [likes, totalCount] = await Promise.all([
+    prisma.productLike.findMany({
+      where: {
+        userId: parseInt(userId, 10),
+        product: productWhereCondition,
+      },
+      skip,
+      take,
+      include: {
+        product: {
+          include: { writer: true, tags: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.productLike.count({
+      where: {
+        userId: parseInt(userId, 10),
+        product: productWhereCondition,
+      },
+    }),
+  ]);
+
+  const list = likes.map((like) => {
+    const product = like.product;
+    return {
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      images: product.image ?? [],
+      tags: product.tags.map((tag) => tag.name),
+      ownerId: product.writer.id,
+      ownerNickname: product.writer.nickname,
+      likeCount: product.likeCount,
+      createdAt: like.createdAt,
+    };
+  });
+
+  return { totalCount, list };
+}
+
 export default {
   createUser,
   getUser,
@@ -103,4 +159,5 @@ export default {
   updateUser,
   refreshToken,
   getMe,
+  getMyLikes,
 };

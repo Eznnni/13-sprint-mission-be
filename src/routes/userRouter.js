@@ -24,4 +24,17 @@ userRouter.get("/", auth.isLoggedIn, async (req, res) => {
   });
 });
 
+userRouter.get("/likes", auth.isLoggedIn, async (req, res) => {
+  const userId = req.auth.userId;
+  const { page, pageSize, keyword } = req.query;
+
+  const result = await userService.getMyLikes({
+    userId,
+    page: parseInt(page, 10) || 1,
+    pageSize: parseInt(pageSize, 10) || 10,
+    keyword: keyword || "",
+  });
+  res.status(200).json(result);
+});
+
 export default userRouter;

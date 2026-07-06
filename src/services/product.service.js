@@ -51,20 +51,52 @@ export const findProduct = async (page, limit, sort, search) => {
   return { products: formattedProducts, total, pageNum, take };
 };
 
-export const findProductById = async (id) => {
+export const findProductById = async (productId, userId) => {
   const product = await prisma.product.findUnique({
-    where: { id },
+    where: { id: productId },
     include: {
       writer: true,
       tags: true,
+      comments: {
+        orderBy: { createdAt: "desc" },
+        include: { writer: true },
+      },
     },
   });
 
   if (!product) {
-    throw new NotFoundError("해당 product를 찾을 수 없습니다");
+    const error = new Error("존재하지 않는 상품입니다.");
+    error.code = 404;
+    throw error;
   }
 
-  return product;
+  const like = await prisma.productLike.findUnique({
+    where: {
+      userId_productId: { userId, productId },
+    },
+  });
+
+  return {
+    createdAt: product.createdAt,
+    updatedAt: product.updatedAt,
+    likeCount: product.likeCount,
+    ownerNickname: product.writer.nickname,
+    ownerId: product.writer.id,
+    images: product.image ?? [],
+    tags: product.tags.map((tag) => tag.name),
+    price: product.price,
+    description: product.description,
+    name: product.name,
+    id: product.id,
+    isLiked: !!like,
+    comments: product.comments.map((comment) => ({
+      id: comment.id,
+      content: comment.content,
+      createdAt: comment.createdAt,
+      writerId: comment.writer.id,
+      writerNickname: comment.writer.nickname,
+    })),
+  };
 };
 
 export const createProduct = async (newProduct) => {
@@ -158,4 +190,99 @@ export const updateOrCreateProduct = async (
 export const deleteProduct = async (id) => {
   await prisma.product.delete({ where: { id } });
   return;
+};
+
+export const addLikeProduct = async (productId, userId) => {
+  const existingProduct = await prisma.product.findUnique({
+    where: { id: productId },
+    include: { writer: true, tags: true },
+  });
+
+  if (!existingProduct) {
+    const error = new Error("존재하지 않는 상품입니다.");
+    error.code = 404;
+    throw error;
+  }
+
+  const existingLike = await prisma.productLike.findUnique({
+    where: { userId_productId: { userId, productId } },
+  });
+
+  if (!existingLike) {
+    await prisma.$transaction(async (tx) => {
+      await tx.productLike.create({ data: { userId, productId } });
+      await tx.product.update({
+        where: { id: productId },
+        data: { likeCount: { increment: 1 } },
+      });
+    });
+  }
+
+  //트랜잭션 완료 후 refetch
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+    include: { writer: true, tags: true },
+  });
+
+  return {
+    createdAt: product.createdAt,
+    likeCount: product.likeCount,
+    ownerNickname: product.writer.nickname,
+    ownerId: product.writer.id,
+    images: product.image ?? [],
+    tags: product.tags.map((tag) => tag.name),
+    price: product.price,
+    name: product.name,
+    description: product.description,
+    id: product.id,
+    isLiked: true,
+  };
+};
+
+export const unLikeProduct = async (productId, userId) => {
+  const existingProduct = await prisma.product.findUnique({
+    where: { id: productId },
+    include: { writer: true, tags: true },
+  });
+
+  if (!existingProduct) {
+    const error = new Error("존재하지 않는 상품입니다.");
+    error.code = 404;
+    throw error;
+  }
+
+  const existingLike = await prisma.productLike.findUnique({
+    where: { userId_productId: { userId, productId } },
+  });
+
+  if (existingLike) {
+    await prisma.$transaction(async (tx) => {
+      await tx.productLike.delete({
+        where: { userId_productId: { userId, productId } },
+      });
+      await tx.product.update({
+        where: { id: productId },
+        data: { likeCount: { decrement: 1 } },
+      });
+    });
+  }
+
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+    include: { writer: true, tags: true },
+  });
+
+  return {
+    createdAt: product.createdAt,
+    likeCount: product.likeCount,
+    ownerNickname: product.writer.nickname,
+    ownerId: product.writer.id,
+    images: product.image ?? [],
+    tags: product.tags.map((tag) => tag.name),
+    price: product.price,
+    name: product.name,
+    description: product.description,
+    id: product.id,
+    isLiked: false,
+  };
 };

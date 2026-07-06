@@ -1,4 +1,4 @@
-import prisma from "../lib/prisma.js";
+import prisma from "../config/prisma.js";
 import { ORDERBY } from "../constants/common.js";
 import { offsetPagination } from "../utils/pagination.js";
 import { NotFoundError } from "../utils/errors.js";
@@ -48,17 +48,43 @@ export const findArticle = async (page, pageSize, orderBy, keyword) => {
   return { articles: formattedArticles, total };
 };
 
-export const findArticleById = async (id) => {
+export const findArticleById = async (articleId, userId) => {
   const article = await prisma.article.findUnique({
-    where: { id },
-    include: { writer: true },
+    where: { id: articleId },
+    include: {
+      writer: true,
+      comments: {
+        orderBy: { createdAt: "desc" },
+        include: { writer: true },
+      },
+    },
   });
 
   if (!article) {
-    throw new NotFoundError("해당 article을 찾을 수 없습니다");
+    const error = new Error("존재하지 않는 게시물입니다.");
+    error.code = 404;
+    throw error;
   }
 
-  return article;
+  const like = await prisma.articleLike.findUnique({
+    where: {
+      userId_articleId: { userId, articleId },
+    },
+  });
+  return {
+    updatedAt: article.updatedAt,
+    createdAt: article.createdAt,
+    likeCount: article.likeCount,
+    writer: {
+      nickname: article.writer.nickname,
+      id: article.writer.id,
+    },
+    images: article.image ?? [],
+    content: article.content,
+    title: article.title,
+    id: article.id,
+    isLiked: !!like,
+  };
 };
 
 export const createArticle = async (articleData) => {
@@ -88,4 +114,100 @@ export const updateArticle = async (id, data) => {
 export const deleteArticle = async (id) => {
   const article = await prisma.article.delete({ where: { id } });
   return;
+};
+
+export const addLikeArticle = async (articleId, userId) => {
+  const existingArticle = await prisma.article.findUnique({
+    where: { id: articleId },
+    include: { writer: true },
+  });
+
+  if (!existingArticle) {
+    const error = new Error("존재하지 않는 게시물입니다.");
+    error.code = 404;
+    throw error;
+  }
+
+  const existingLike = await prisma.articleLike.findUnique({
+    where: { userId_articleId: { userId, articleId } },
+  });
+
+  if (!existingLike) {
+    await prisma.$transaction(async (tx) => {
+      await tx.articleLike.create({ data: { userId, articleId } });
+      await tx.article.update({
+        where: { id: articleId },
+        data: { likeCount: { increment: 1 } },
+      });
+    });
+  }
+
+  const article = await prisma.article.findUnique({
+    where: { id: articleId },
+    include: { writer: true },
+  });
+
+  return {
+    updatedAt: article.updatedAt,
+    createdAt: article.createdAt,
+    likeCount: article.likeCount,
+    writer: {
+      nickname: article.writer.nickname,
+      id: article.writer.id,
+    },
+    images: article.image ?? [],
+    content: article.content,
+    title: article.title,
+    id: article.id,
+    isLiked: true,
+  };
+};
+
+export const unLikeArticle = async (articleId, userId) => {
+  const existingArticle = await prisma.article.findUnique({
+    where: { id: articleId },
+    include: { writer: true },
+  });
+
+  if (!existingArticle) {
+    const error = new Error("존재하지 않는 게시물입니다.");
+    error.code = 404;
+    throw error;
+  }
+
+  const existingLike = await prisma.articleLike.findUnique({
+    where: { userId_articleId: { userId, articleId } },
+  });
+
+  if (existingLike) {
+    await prisma.$transaction(async (tx) => {
+      await tx.articleLike.delete({
+        where: { userId_articleId: { userId, articleId } },
+      });
+      await tx.article.update({
+        where: { id: articleId },
+        data: { likeCount: { decrement: 1 } },
+      });
+    });
+  }
+
+  const article = await prisma.article.findUnique({
+    where: { id: articleId },
+    include: { writer: true },
+  });
+
+  return {
+    updatedAt: article.updatedAt,
+    createdAt: article.createdAt,
+    likeCount: article.likeCount,
+    writer: {
+      nickname: article.writer.nickname,
+      id: article.writer.id,
+    },
+    images: article.image ?? [],
+    content: article.content,
+    title: article.title,
+    id: article.id,
+    isLiked: false,
+  };
 };

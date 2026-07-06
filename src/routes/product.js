@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.get("/", ProductController.getProductList);
 
-router.get("/:id", ProductController.getProductBYId);
+router.get("/:id", auth.isLoggedIn, ProductController.getProductBYId);
 
 router.post("/", auth.isLoggedIn, uploadImages, ProductController.postProduct);
 
@@ -41,6 +41,15 @@ router.post(
   "/:id/comments",
   auth.isLoggedIn,
   CommentController.postProductComment,
+);
+
+//Like Route
+router.post("/:id/like", auth.isLoggedIn, ProductController.postProductLike);
+
+router.delete(
+  "/:id/like",
+  auth.isLoggedIn,
+  ProductController.deleteProductLike,
 );
 
 export default router;
