@@ -91,23 +91,6 @@ export const patchProduct = asyncHandler(async (req, res) => {
   res.json({ success: true, data: product });
 });
 
-export const upsertProduct = asyncHandler(async (req, res) => {
-  const { id } = idSchema.parse(req.params);
-  const { name, description, tags, price } = req.body;
-  const writerId = req.auth.userId;
-
-  const product = await ProductService.updateOrCreateProduct(
-    id,
-    name,
-    description,
-    tags,
-    price,
-    writerId,
-  );
-
-  res.json({ success: true, data: product });
-});
-
 export const deleteProduct = asyncHandler(async (req, res) => {
   const { id } = idSchema.parse(req.params);
   await ProductService.deleteProduct(id);

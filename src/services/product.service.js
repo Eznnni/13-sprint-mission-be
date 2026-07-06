@@ -148,45 +148,6 @@ export const updateProduct = async (id, data) => {
   return product;
 };
 
-export const updateOrCreateProduct = async (
-  id,
-  name,
-  description,
-  tags,
-  price,
-  writerId,
-) => {
-  const product = await prisma.product.upsert({
-    where: { id: id },
-    update: {
-      name,
-      description,
-      price: parseInt(price),
-      tags: {
-        set: [],
-        connectOrCreate: tags.map((tag) => ({
-          where: { name: tag },
-          create: { name: tag },
-        })),
-      },
-    },
-    create: {
-      id: id > 0 ? id : undefined,
-      name,
-      description,
-      price: parseInt(price),
-      writerId: writerId,
-      tags: {
-        connectOrCreate: tags.map((tag) => ({
-          where: { name: tag },
-          create: { name: tag },
-        })),
-      },
-    },
-  });
-  return product;
-};
-
 export const deleteProduct = async (id) => {
   await prisma.product.delete({ where: { id } });
   return;

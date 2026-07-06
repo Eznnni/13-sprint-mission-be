@@ -441,59 +441,6 @@ router.patch(
 /**
  * @swagger
  * /products/{id}:
- *   put:
- *     summary: 상품 덮어쓰기 (Upsert)
- *     description: 상품 데이터를 통째로 덮어쓰거나 생성합니다.
- *     tags: [Products]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               description:
- *                 type: string
- *               price:
- *                 type: integer
- *               tags:
- *                 type: array
- *                 items:
- *                   type: string
- *     responses:
- *       200:
- *         description: 상품 Upsert 성공
- *       404:
- *         description:
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: string
- */
-router.put(
-  "/:id",
-  auth.isLoggedIn,
-  auth.isProductOwner,
-  ProductController.upsertProduct,
-);
-
-/**
- * @swagger
- * /products/{id}:
  *   delete:
  *     summary: 상품 삭제
  *     description: 특정 상품을 삭제합니다. 작성자만 가능합니다.
