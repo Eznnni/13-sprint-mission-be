@@ -2,6 +2,8 @@ import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import swaggerUi from "swagger-ui-express";
+import swaggerSpecs from "./config/swagger.js";
 
 import { PORT } from "./constants/common.js";
 import errorHandler from "./middlewares/errorHandler.js";
@@ -18,6 +20,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 app.use("/products", express.static("uploads/"));
 
 app.use("/products", productRouter);
