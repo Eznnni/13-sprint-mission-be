@@ -15,7 +15,12 @@ export const findProduct = async (page, limit, sort, search) => {
     ];
   }
 
-  const orderBy = ORDERBY[sort] ?? { createdAt: "desc" };
+  let orderBy = { createdAt: "desc" };
+  if (sort === "favorite") {
+    orderBy = { likeCount: "desc" };
+  } else if (ORDERBY && ORDERBY[sort]) {
+    orderBy = ORDERBY[sort];
+  }
 
   const [products, total] = await Promise.all([
     prisma.product.findMany({

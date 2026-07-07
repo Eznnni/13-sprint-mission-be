@@ -8,7 +8,11 @@ import * as ProductService from "../services/product.service.js";
 import auth from "../middlewares/auth.js";
 
 export const getProductList = asyncHandler(async (req, res) => {
-  const { page, limit, sort, search } = req.query;
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.pageSize) || 10;
+  const sort = req.query.orderBy || "recent";
+  const search = req.query.keyword || "";
+
   const { products, total, pageNum, take } = await ProductService.findProduct(
     page,
     limit,
@@ -20,10 +24,10 @@ export const getProductList = asyncHandler(async (req, res) => {
     success: true,
     page: pageNum,
     limit: take,
-    total,
+    totalCount: total,
     totalPages: Math.ceil(total / take),
     filters: { search, sort },
-    data: products,
+    list: products,
   });
 });
 
