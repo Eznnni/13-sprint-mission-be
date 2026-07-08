@@ -1,6 +1,6 @@
 import { success } from "zod";
 import { ORDERBY } from "../constants/common.js";
-import prisma from "../lib/prisma.js";
+import prisma from "../config/prisma.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import createCommentSchema from "../schemas/comment.schema.js";
 import { idSchema } from "../schemas/common.schema.js";

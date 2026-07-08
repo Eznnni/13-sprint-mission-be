@@ -1,5 +1,5 @@
 import { ORDERBY } from "../constants/common.js";
-import prisma from "../lib/prisma.js";
+import prisma from "../config/prisma.js";
 import { cursorPagination } from "../utils/pagination.js";
 
 export const findProductCommentList = async (id, limit, sort, lastId) => {
