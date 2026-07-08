@@ -1,13 +1,32 @@
-import prisma from "../config/prisma.js";
+import * as articleRepository from "../repositories/article.repository.js";
 import { ORDERBY } from "../constants/common.js";
 import { offsetPagination } from "../utils/pagination.js";
-import { NotFoundError } from "../utils/errors.js";
+
+const createNotFoundError = (message = "존재하지 않는 게시물입니다.") => {
+  const error = new Error(message);
+  error.code = 404;
+  return error;
+};
+
+const formatArticleDetail = (article, isLiked) => ({
+  id: article.id,
+  title: article.title,
+  content: article.content,
+  images: article.image ?? [],
+  likeCount: article.likeCount,
+  createdAt: article.createdAt,
+  updatedAt: article.updatedAt,
+  writer: {
+    id: article.writer.id,
+    nickname: article.writer.nickname,
+  },
+  isLiked,
+});
 
 export const findArticle = async (page, pageSize, orderBy, keyword) => {
-  const { pageNum, take, skip } = offsetPagination(page, pageSize);
+  const { take, skip } = offsetPagination(page, pageSize);
 
   const where = {};
-
   if (keyword) {
     where.OR = [
       { title: { contains: keyword, mode: "insensitive" } },
@@ -17,18 +36,12 @@ export const findArticle = async (page, pageSize, orderBy, keyword) => {
 
   const orderByQuery = ORDERBY[orderBy] ?? { createdAt: "desc" };
 
-  const [articles, total] = await Promise.all([
-    prisma.article.findMany({
-      where,
-      orderBy: orderByQuery,
-      skip,
-      take,
-      include: {
-        writer: true,
-      },
-    }),
-    prisma.article.count({ where }),
-  ]);
+  const [articles, total] = await articleRepository.findArticlesAndCount({
+    where,
+    orderByQuery,
+    skip,
+    take,
+  });
 
   const formattedArticles = articles.map((article) => ({
     id: article.id,
@@ -49,165 +62,66 @@ export const findArticle = async (page, pageSize, orderBy, keyword) => {
 };
 
 export const findArticleById = async (articleId, userId) => {
-  const article = await prisma.article.findUnique({
-    where: { id: articleId },
-    include: {
-      writer: true,
-      comments: {
-        orderBy: { createdAt: "desc" },
-        include: { writer: true },
-      },
-    },
-  });
+  const article = await articleRepository.findArticleById(articleId);
 
   if (!article) {
-    const error = new Error("존재하지 않는 게시물입니다.");
-    error.code = 404;
-    throw error;
+    throw createNotFoundError();
   }
 
-  const like = await prisma.articleLike.findUnique({
-    where: {
-      userId_articleId: { userId, articleId },
-    },
-  });
-  return {
-    updatedAt: article.updatedAt,
-    createdAt: article.createdAt,
-    likeCount: article.likeCount,
-    writer: {
-      nickname: article.writer.nickname,
-      id: article.writer.id,
-    },
-    images: article.image ?? [],
-    content: article.content,
-    title: article.title,
-    id: article.id,
-    isLiked: !!like,
-  };
+  const like = await articleRepository.findArticleLike(userId, articleId);
+
+  return formatArticleDetail(article, !!like);
 };
 
 export const createArticle = async (articleData) => {
-  const article = await prisma.article.create({
-    data: {
-      title: articleData.title,
-      content: articleData.content,
-      writerId: articleData.writerId,
-    },
-  });
-
-  return article;
+  return await articleRepository.createArticle(articleData);
 };
 
 export const updateArticle = async (id, data) => {
-  const article = await prisma.article.update({
-    where: { id },
-    data: {
-      title: data.title,
-      content: data.content,
-    },
-  });
-
-  return article;
+  return await articleRepository.updateArticle(id, data);
 };
 
 export const deleteArticle = async (id) => {
-  const article = await prisma.article.delete({ where: { id } });
+  await articleRepository.deleteArticle(id);
   return;
 };
 
 export const addLikeArticle = async (articleId, userId) => {
-  const existingArticle = await prisma.article.findUnique({
-    where: { id: articleId },
-    include: { writer: true },
-  });
+  const existingArticle = await articleRepository.findArticleById(articleId);
 
   if (!existingArticle) {
-    const error = new Error("존재하지 않는 게시물입니다.");
-    error.code = 404;
-    throw error;
+    throw createNotFoundError();
   }
 
-  const existingLike = await prisma.articleLike.findUnique({
-    where: { userId_articleId: { userId, articleId } },
-  });
+  const existingLike = await articleRepository.findArticleLike(
+    userId,
+    articleId,
+  );
 
   if (!existingLike) {
-    await prisma.$transaction(async (tx) => {
-      await tx.articleLike.create({ data: { userId, articleId } });
-      await tx.article.update({
-        where: { id: articleId },
-        data: { likeCount: { increment: 1 } },
-      });
-    });
+    await articleRepository.createArticleLikeWithIncrement(userId, articleId);
   }
 
-  const article = await prisma.article.findUnique({
-    where: { id: articleId },
-    include: { writer: true },
-  });
-
-  return {
-    updatedAt: article.updatedAt,
-    createdAt: article.createdAt,
-    likeCount: article.likeCount,
-    writer: {
-      nickname: article.writer.nickname,
-      id: article.writer.id,
-    },
-    images: article.image ?? [],
-    content: article.content,
-    title: article.title,
-    id: article.id,
-    isLiked: true,
-  };
+  const article = await articleRepository.findArticleById(articleId);
+  return formatArticleDetail(article, true);
 };
 
 export const unLikeArticle = async (articleId, userId) => {
-  const existingArticle = await prisma.article.findUnique({
-    where: { id: articleId },
-    include: { writer: true },
-  });
+  const existingArticle = await articleRepository.findArticleById(articleId);
 
   if (!existingArticle) {
-    const error = new Error("존재하지 않는 게시물입니다.");
-    error.code = 404;
-    throw error;
+    throw createNotFoundError();
   }
 
-  const existingLike = await prisma.articleLike.findUnique({
-    where: { userId_articleId: { userId, articleId } },
-  });
+  const existingLike = await articleRepository.findArticleLike(
+    userId,
+    articleId,
+  );
 
   if (existingLike) {
-    await prisma.$transaction(async (tx) => {
-      await tx.articleLike.delete({
-        where: { userId_articleId: { userId, articleId } },
-      });
-      await tx.article.update({
-        where: { id: articleId },
-        data: { likeCount: { decrement: 1 } },
-      });
-    });
+    await articleRepository.deleteArticleLikeWithDecrement(userId, articleId);
   }
 
-  const article = await prisma.article.findUnique({
-    where: { id: articleId },
-    include: { writer: true },
-  });
-
-  return {
-    updatedAt: article.updatedAt,
-    createdAt: article.createdAt,
-    likeCount: article.likeCount,
-    writer: {
-      nickname: article.writer.nickname,
-      id: article.writer.id,
-    },
-    images: article.image ?? [],
-    content: article.content,
-    title: article.title,
-    id: article.id,
-    isLiked: false,
-  };
+  const article = await articleRepository.findArticleById(articleId);
+  return formatArticleDetail(article, false);
 };

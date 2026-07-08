@@ -1,12 +1,13 @@
 @baseUrl = http://localhost:3001
+@accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE3LCJpYXQiOjE3ODM0ODc3MTEsImV4cCI6MTc4MzQ5MTMxMX0.WvcckSw6BKn9wuQfYlmIpoAl9Z3pIA3Ot9G6PBot7G4
 
 ###회원가입하기
 POST {{baseUrl}}/auth/signup
 Content-Type: application/json
 
 {
-  "email": "duck@gmail.com",
-  "nickname": "오리",
+  "email": "snake@gmail.com",
+  "nickname": "뱀뱀",
   "password": "123456789",
   "passwordConfirmation": "123456789"
 }
@@ -27,7 +28,7 @@ POST {{baseUrl}}/auth/signin
 Content-Type: application/json
 
 {
-  "email": "unin5412@gmail.com",
+  "email": "snake@gmail.com",
   "password": "123456789"
 }
 
@@ -43,11 +44,11 @@ Content-Type: application/json
 ###내 정보 가져오기
 GET {{baseUrl}}/users/me
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzA5OTU4MywiZXhwIjoxNzgzMTAzMTgzfQ.UTWn1YFktrMZM16EabozCsYRK3WY4jOgAfzMMWxIwxE
+Authorization: Bearer {{accessToken}}
 
 ###상품 accessToken으로 등록
 POST {{baseUrl}}/products
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MzMxODA0NiwiZXhwIjoxNzgzMzIxNjQ2fQ.wvShYCkPdd8pg96D5Ub6suBeDW8hQZh2GmQPcBeEp10
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
@@ -61,8 +62,8 @@ GET {{baseUrl}}/products
 Content-Type: application/json
 
 ###상품 accessToken으로 수정
-PATCH {{baseUrl}}/products/2
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MzA5Mjk2MiwiZXhwIjoxNzgzMDk2NTYyfQ.w8NDxdBNBDO9EeLpzAnxMpceAZf8sYVb4vP897DodpQ
+PATCH {{baseUrl}}/products/34
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
@@ -70,13 +71,13 @@ Content-Type: application/json
 }
 
 ###상품 accessToken으로 삭제
-DELETE {{baseUrl}}/products/2
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MzA5Mjk2MiwiZXhwIjoxNzgzMDk2NTYyfQ.w8NDxdBNBDO9EeLpzAnxMpceAZf8sYVb4vP897DodpQ
+DELETE {{baseUrl}}/products/34
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 ###게시물 accessToken으로 등록
 POST {{baseUrl}}/articles
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzMyMDQ2MSwiZXhwIjoxNzgzMzI0MDYxfQ.zr0u3OcL7_3DA4WH6rzFs0XzgII_s1yPHOPKc2XGqGU
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
@@ -85,8 +86,8 @@ Content-Type: application/json
 }
 
 ###게시물 accessToken으로 수정
-PATCH {{baseUrl}}/articles/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MzA5Mjk2MiwiZXhwIjoxNzgzMDk2NTYyfQ.w8NDxdBNBDO9EeLpzAnxMpceAZf8sYVb4vP897DodpQ
+PATCH {{baseUrl}}/articles/18
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
@@ -94,27 +95,27 @@ Content-Type: application/json
 }
 
 ###게시물 accessToken으로 삭제
-DELETE {{baseUrl}}/articles/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MzA5Mjk2MiwiZXhwIjoxNzgzMDk2NTYyfQ.w8NDxdBNBDO9EeLpzAnxMpceAZf8sYVb4vP897DodpQ
+DELETE {{baseUrl}}/articles/18
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 ###댓글 등록
-POST {{baseUrl}}/products/2/comments
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzA5NjI5MiwiZXhwIjoxNzgzMDk5ODkyfQ.XGVUsLnato3H2lPM8oRlUPNUrHW2VgQry1gmqgmU-Ow
+POST {{baseUrl}}/products/17/comments
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
-  "content": "저도 궁금해요"
+  "content": "저도 궁금해요!"
 }
 
 ###댓글 조회
-GET {{baseUrl}}/products/2/comments
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzA5NjI5MiwiZXhwIjoxNzgzMDk5ODkyfQ.XGVUsLnato3H2lPM8oRlUPNUrHW2VgQry1gmqgmU-Ow
+GET {{baseUrl}}/products/17/comments
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 ###댓글 수정
 PATCH {{baseUrl}}/comments/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzA5NjI5MiwiZXhwIjoxNzgzMDk5ODkyfQ.XGVUsLnato3H2lPM8oRlUPNUrHW2VgQry1gmqgmU-Ow
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
@@ -123,14 +124,12 @@ Content-Type: application/json
 
 ###댓글 삭제
 DELETE {{baseUrl}}/comments/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzA5NjI5MiwiZXhwIjoxNzgzMDk5ODkyfQ.XGVUsLnato3H2lPM8oRlUPNUrHW2VgQry1gmqgmU-Ow
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
----
-
 ###댓글 등록
-POST {{baseUrl}}/articles/2/comments
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzA5NjI5MiwiZXhwIjoxNzgzMDk5ODkyfQ.XGVUsLnato3H2lPM8oRlUPNUrHW2VgQry1gmqgmU-Ow
+POST {{baseUrl}}/articles/14/comments
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
@@ -138,13 +137,13 @@ Content-Type: application/json
 }
 
 ###댓글 조회
-GET {{baseUrl}}/articles/2/comments
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzA5NjI5MiwiZXhwIjoxNzgzMDk5ODkyfQ.XGVUsLnato3H2lPM8oRlUPNUrHW2VgQry1gmqgmU-Ow
+GET {{baseUrl}}/articles/14/comments
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 ###댓글 수정
-PATCH {{baseUrl}}/comments/2
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzA5NjI5MiwiZXhwIjoxNzgzMDk5ODkyfQ.XGVUsLnato3H2lPM8oRlUPNUrHW2VgQry1gmqgmU-Ow
+PATCH {{baseUrl}}/comments/3
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
@@ -152,13 +151,13 @@ Content-Type: application/json
 }
 
 ###댓글 삭제
-DELETE {{baseUrl}}/comments/2
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzA5NjI5MiwiZXhwIjoxNzgzMDk5ODkyfQ.XGVUsLnato3H2lPM8oRlUPNUrHW2VgQry1gmqgmU-Ow
+DELETE {{baseUrl}}/comments/3
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 ###상품 + 이미지
 POST {{baseUrl}}/products
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzEzMjgzNywiZXhwIjoxNzgzMTM2NDM3fQ.gEhUsXdLFP1n_1Cbxy15-2tMGHtM6y3k7tXYdT1_o5Y
+Authorization: Bearer {{accessToken}}
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
 
 ------WebKitFormBoundary

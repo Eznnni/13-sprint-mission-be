@@ -1,13 +1,33 @@
-import prisma from "../config/prisma.js";
+import * as productRepository from "../repositories/product.repository.js";
 import { ORDERBY } from "../constants/common.js";
 import { offsetPagination } from "../utils/pagination.js";
-import { NotFoundError } from "../utils/errors.js";
+
+// 에러 객체 생성 헬퍼 함수
+const createNotFoundError = (message = "존재하지 않는 상품입니다.") => {
+  const error = new Error(message);
+  error.code = 404;
+  return error;
+};
+
+// 좋아요용 데이터 포맷터 헬퍼 함수
+const formatProductLikeStatus = (product, isLiked) => ({
+  id: product.id,
+  name: product.name,
+  description: product.description,
+  price: product.price,
+  images: product.image ?? [],
+  tags: product.tags.map((tag) => tag.name),
+  likeCount: product.likeCount,
+  createdAt: product.createdAt,
+  ownerId: product.writer.id,
+  ownerNickname: product.writer.nickname,
+  isLiked,
+});
 
 export const findProduct = async (page, limit, sort, search) => {
   const { pageNum, take, skip } = offsetPagination(page, limit);
 
   const where = {};
-
   if (search) {
     where.OR = [
       { name: { contains: search, mode: "insensitive" } },
@@ -22,19 +42,12 @@ export const findProduct = async (page, limit, sort, search) => {
     orderBy = ORDERBY[sort];
   }
 
-  const [products, total] = await Promise.all([
-    prisma.product.findMany({
-      where,
-      orderBy,
-      skip,
-      take,
-      include: {
-        writer: true,
-        tags: true,
-      },
-    }),
-    prisma.product.count({ where }),
-  ]);
+  const [products, total] = await productRepository.findProductsAndCount({
+    where,
+    orderBy,
+    skip,
+    take,
+  });
 
   const formattedProducts = products.map((product) => ({
     id: product.id,
@@ -57,42 +70,26 @@ export const findProduct = async (page, limit, sort, search) => {
 };
 
 export const findProductById = async (productId, userId) => {
-  const product = await prisma.product.findUnique({
-    where: { id: productId },
-    include: {
-      writer: true,
-      tags: true,
-      comments: {
-        orderBy: { createdAt: "desc" },
-        include: { writer: true },
-      },
-    },
-  });
+  const product = await productRepository.findProductById(productId);
 
   if (!product) {
-    const error = new Error("존재하지 않는 상품입니다.");
-    error.code = 404;
-    throw error;
+    throw createNotFoundError();
   }
 
-  const like = await prisma.productLike.findUnique({
-    where: {
-      userId_productId: { userId, productId },
-    },
-  });
+  const like = await productRepository.findProductLike(userId, productId);
 
   return {
-    createdAt: product.createdAt,
-    updatedAt: product.updatedAt,
-    likeCount: product.likeCount,
-    ownerNickname: product.writer.nickname,
-    ownerId: product.writer.id,
+    id: product.id,
+    name: product.name,
+    description: product.description,
+    price: product.price,
     images: product.image ?? [],
     tags: product.tags.map((tag) => tag.name),
-    price: product.price,
-    description: product.description,
-    name: product.name,
-    id: product.id,
+    likeCount: product.likeCount,
+    createdAt: product.createdAt,
+    updatedAt: product.updatedAt,
+    ownerId: product.writer.id,
+    ownerNickname: product.writer.nickname,
     isLiked: !!like,
     comments: product.comments.map((comment) => ({
       id: comment.id,
@@ -106,29 +103,16 @@ export const findProductById = async (productId, userId) => {
 
 export const createProduct = async (newProduct) => {
   const { tags, images, writerId, ...rest } = newProduct;
-  const product = await prisma.product.create({
-    data: {
-      ...rest,
-      image: images ?? [],
-      writerId: writerId,
-      tags: {
-        connectOrCreate: tags?.map((tag) => ({
-          where: { name: tag },
-          create: { name: tag },
-        })),
-      },
-    },
-    include: {
-      tags: true,
-    },
+  return await productRepository.createProduct({
+    rest,
+    images,
+    writerId,
+    tags,
   });
-
-  return product;
 };
 
 export const updateProduct = async (id, data) => {
   const { tags, images, ...rest } = data;
-
   const updateData = { ...rest };
 
   if (images !== undefined) {
@@ -145,110 +129,50 @@ export const updateProduct = async (id, data) => {
     };
   }
 
-  const product = await prisma.product.update({
-    where: { id },
-    data: updateData,
-    include: { tags: true },
-  });
-  return product;
+  return await productRepository.updateProduct(id, updateData);
 };
 
 export const deleteProduct = async (id) => {
-  await prisma.product.delete({ where: { id } });
+  await productRepository.deleteProduct(id);
   return;
 };
 
 export const addLikeProduct = async (productId, userId) => {
-  const existingProduct = await prisma.product.findUnique({
-    where: { id: productId },
-    include: { writer: true, tags: true },
-  });
+  const existingProduct = await productRepository.findProductById(productId);
 
   if (!existingProduct) {
-    const error = new Error("존재하지 않는 상품입니다.");
-    error.code = 404;
-    throw error;
+    throw createNotFoundError();
   }
 
-  const existingLike = await prisma.productLike.findUnique({
-    where: { userId_productId: { userId, productId } },
-  });
+  const existingLike = await productRepository.findProductLike(
+    userId,
+    productId,
+  );
 
   if (!existingLike) {
-    await prisma.$transaction(async (tx) => {
-      await tx.productLike.create({ data: { userId, productId } });
-      await tx.product.update({
-        where: { id: productId },
-        data: { likeCount: { increment: 1 } },
-      });
-    });
+    await productRepository.createProductLikeWithIncrement(userId, productId);
   }
 
-  //트랜잭션 완료 후 refetch
-  const product = await prisma.product.findUnique({
-    where: { id: productId },
-    include: { writer: true, tags: true },
-  });
-
-  return {
-    createdAt: product.createdAt,
-    likeCount: product.likeCount,
-    ownerNickname: product.writer.nickname,
-    ownerId: product.writer.id,
-    images: product.image ?? [],
-    tags: product.tags.map((tag) => tag.name),
-    price: product.price,
-    name: product.name,
-    description: product.description,
-    id: product.id,
-    isLiked: true,
-  };
+  const product = await productRepository.findProductById(productId);
+  return formatProductLikeStatus(product, true);
 };
 
 export const unLikeProduct = async (productId, userId) => {
-  const existingProduct = await prisma.product.findUnique({
-    where: { id: productId },
-    include: { writer: true, tags: true },
-  });
+  const existingProduct = await productRepository.findProductById(productId);
 
   if (!existingProduct) {
-    const error = new Error("존재하지 않는 상품입니다.");
-    error.code = 404;
-    throw error;
+    throw createNotFoundError();
   }
 
-  const existingLike = await prisma.productLike.findUnique({
-    where: { userId_productId: { userId, productId } },
-  });
+  const existingLike = await productRepository.findProductLike(
+    userId,
+    productId,
+  );
 
   if (existingLike) {
-    await prisma.$transaction(async (tx) => {
-      await tx.productLike.delete({
-        where: { userId_productId: { userId, productId } },
-      });
-      await tx.product.update({
-        where: { id: productId },
-        data: { likeCount: { decrement: 1 } },
-      });
-    });
+    await productRepository.deleteProductLikeWithDecrement(userId, productId);
   }
 
-  const product = await prisma.product.findUnique({
-    where: { id: productId },
-    include: { writer: true, tags: true },
-  });
-
-  return {
-    createdAt: product.createdAt,
-    likeCount: product.likeCount,
-    ownerNickname: product.writer.nickname,
-    ownerId: product.writer.id,
-    images: product.image ?? [],
-    tags: product.tags.map((tag) => tag.name),
-    price: product.price,
-    name: product.name,
-    description: product.description,
-    id: product.id,
-    isLiked: false,
-  };
+  const product = await productRepository.findProductById(productId);
+  return formatProductLikeStatus(product, false);
 };
