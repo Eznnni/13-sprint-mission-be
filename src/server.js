@@ -10,8 +10,8 @@ import errorHandler from "./middlewares/errorHandler.js";
 import articleRouter from "./routes/article.js";
 import productRouter from "./routes/product.js";
 import commentRouter from "./routes/comment.js";
-import authRouter from "./routes/authRouter.js";
-import userRouter from "./routes/userRouter.js";
+import authRouter from "./routes/auth.js";
+import userRouter from "./routes/user.js";
 
 dotenv.config();
 
