@@ -1,0 +1,113 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  email        String        @unique
+  nickname     String
+  password     String
+  image        String?
+  refreshToken String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  comments     Comment[]
+  articles     Article[]
+  products     Product[]
+  productLikes ProductLike[]
+  articleLikes ArticleLike[]
+
+  @@map("users")
+}
+
+model Product {
+  id           Int           @id @default(autoincrement())
+  name         String
+  description  String
+  price        Int           @default(0)
+  image        String[]
+  likeCount    Int           @default(0)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  tags         Tag[]
+  comments     Comment[]
+  writer       User          @relation(fields: [writerId], references: [id], onDelete: Cascade)
+  writerId     Int
+  productLikes ProductLike[]
+
+  @@map("products")
+}
+
+model Tag {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  products Product[]
+
+  @@map("tags")
+}
+
+model Article {
+  id           Int           @id @default(autoincrement())
+  title        String
+  content      String
+  image        String[]
+  likeCount    Int           @default(0)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  writer       User          @relation(fields: [writerId], references: [id], onDelete: Cascade)
+  writerId     Int
+  comments     Comment[]
+  articleLikes ArticleLike[]
+
+  @@map("articles")
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  articles  Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  articleId Int?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int?
+  writer    User     @relation(fields: [writerId], references: [id], onDelete: Cascade)
+  writerId  Int
+
+  @@map("comments")
+}
+
+model ArticleLike {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  articleId Int
+  createdAt DateTime @default(now())
+
+  @@unique([userId, articleId]) //좋아요 중복 방지
+  @@map("article_likes")
+}
+
+model ProductLike {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId]) //좋아요 중복 방지
+  @@map("product_likes")
+}

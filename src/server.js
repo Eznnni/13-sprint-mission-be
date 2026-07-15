@@ -1,0 +1,37 @@
+import dotenv from "dotenv";
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import swaggerUi from "swagger-ui-express";
+import swaggerSpecs from "./config/swagger.js";
+
+import { PORT } from "./constants/common.js";
+import errorHandler from "./middlewares/errorHandler.js";
+import articleRouter from "./routes/article.js";
+import productRouter from "./routes/product.js";
+import commentRouter from "./routes/comment.js";
+import authRouter from "./routes/auth.js";
+import userRouter from "./routes/user.js";
+
+dotenv.config();
+
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+app.use(cookieParser());
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
+app.use("/products", express.static("uploads/"));
+
+app.use("/products", productRouter);
+app.use("/articles", articleRouter);
+app.use("/comments", commentRouter);
+app.use("/auth", authRouter);
+app.use("/users/me", userRouter);
+
+app.use(errorHandler);
+
+app.listen(PORT, () => {
+  console.log(`✅ Server running on http://localhost:${PORT}`);
+});
