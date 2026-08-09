@@ -3,12 +3,17 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import errorHandler from "./middlewares/errorHandler";
+import authRouter from "./routes/auth";
+import userRouter from "./routes/user";
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
+
+app.use("/auth", authRouter);
+app.use("/user/me", userRouter);
 
 app.use(errorHandler);
 
