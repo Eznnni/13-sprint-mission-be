@@ -1,0 +1,128 @@
+### ==========================================
+### Auth + User API 테스트
+### VSCode "REST Client" 확장 프로그램 필요
+### 이 파일에서는 쿠키(refreshToken)가 요청 간에 자동으로 유지됩니다
+### (설정: rest-client.enableCookieJar, 기본값 true)
+### ==========================================
+
+@baseUrl = http://localhost:3000
+
+### -----------------------------------------
+### 1. 회원가입 성공
+### -----------------------------------------
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "email": "test1@example.com",
+  "nickname": "테스트유저1",
+  "password": "Test1234!",
+  "passwordConfirmation": "Test1234!"
+}
+
+### -----------------------------------------
+### 2. 회원가입 실패 - 이메일 중복
+###    (위 1번 요청을 먼저 실행한 뒤 실행)
+### -----------------------------------------
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "nickname": "테스트유저2",
+  "password": "Test1234!",
+  "passwordConfirmation": "Test1234!"
+}
+
+### -----------------------------------------
+### 3. 회원가입 실패 - 비밀번호 확인 불일치 (zod validate 미들웨어 테스트)
+### -----------------------------------------
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "email": "another@example.com",
+  "nickname": "다른유저",
+  "password": "Test1234!",
+  "passwordConfirmation": "Different1234!"
+}
+
+### -----------------------------------------
+### 4. 회원가입 실패 - 비밀번호 형식 위반 (8자 미만)
+### -----------------------------------------
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "email": "another2@example.com",
+  "nickname": "다른유저2",
+  "password": "abc",
+  "passwordConfirmation": "abc"
+}
+
+### -----------------------------------------
+### 5. 로그인 성공
+###    accessToken을 응답에서 추출해서 아래 요청에서 재사용합니다
+### -----------------------------------------
+# @name signin
+POST {{baseUrl}}/auth/signin
+Content-Type: application/json
+
+{
+  "email": "test1@example.com",
+  "password": "Test1234!"
+}
+
+### 로그인 응답의 accessToken을 변수로 저장
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc4NjI3Njc2MSwiZXhwIjoxNzg2MjgwMzYxfQ.twXenw3JIyZp35tRvlNv70pjmmpLZOw-688jj4d21U4
+### -----------------------------------------
+### 6. 로그인 실패 - 잘못된 비밀번호
+### -----------------------------------------
+POST {{baseUrl}}/auth/signin
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "WrongPassword!"
+}
+
+### -----------------------------------------
+### 7. 로그인 실패 - 존재하지 않는 이메일
+### -----------------------------------------
+POST {{baseUrl}}/auth/signin
+Content-Type: application/json
+
+{
+  "email": "notexist@example.com",
+  "password": "Test1234!"
+}
+
+### -----------------------------------------
+### 8. 내 정보 조회 (로그인 필요, accessToken 사용)
+### -----------------------------------------
+GET {{baseUrl}}/user/me
+Authorization: Bearer {{accessToken}}
+
+### -----------------------------------------
+### 9. 내 정보 조회 실패 - 토큰 없이 요청
+### -----------------------------------------
+GET {{baseUrl}}/user/me
+
+### -----------------------------------------
+### 10. 내 정보 조회 실패 - 잘못된 토큰
+### -----------------------------------------
+GET {{baseUrl}}/user/me
+Authorization: Bearer invalid.token.value
+
+### -----------------------------------------
+### 11. 내 좋아요 목록 조회 (페이지네이션)
+### -----------------------------------------
+GET {{baseUrl}}/user/me/likes?page=1&pageSize=10&keyword=
+Authorization: Bearer {{accessToken}}
+
+### -----------------------------------------
+### 12. 내 좋아요 목록 조회 - 쿼리 파라미터 없이 (기본값 확인용)
+### -----------------------------------------
+GET {{baseUrl}}/user/me/likes
+Authorization: Bearer {{accessToken}}
+
