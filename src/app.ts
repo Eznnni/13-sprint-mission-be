@@ -6,6 +6,7 @@ import errorHandler from "./middlewares/errorHandler";
 import authRouter from "./routes/auth";
 import userRouter from "./routes/user";
 import productRouter from "./routes/product";
+import commentRouter from "./routes/comment";
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use("/auth", authRouter);
 app.use("/user/me", userRouter);
 
 app.use("/products", productRouter);
+app.use("/comments", commentRouter);
 
 app.use(errorHandler);
 

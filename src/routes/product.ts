@@ -2,6 +2,7 @@ import express from "express";
 import auth from "../middlewares/auth";
 import { uploadImages } from "../middlewares/imageUpload";
 import ProductController from "../controllers/product.controller";
+import commentController from "../controllers/comment.controller";
 
 const router = express.Router();
 
@@ -26,13 +27,13 @@ router.delete(
   ProductController.deleteProduct,
 );
 
-// router.get("/:id/comments", CommentController.getProductCommentList);
+router.get("/:id/comments", commentController.getProductCommentList);
 
-// router.post(
-//   "/:id/comments",
-//   auth.isLoggedIn,
-//   CommentController.postProductComment,
-// );
+router.post(
+  "/:id/comments",
+  auth.isLoggedIn,
+  commentController.postProductComment,
+);
 
 router.post("/:id/like", auth.isLoggedIn, ProductController.postProductLike);
 
