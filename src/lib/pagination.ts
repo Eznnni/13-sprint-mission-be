@@ -4,7 +4,7 @@ interface OffsetPaginationOptions {
   skip: number;
 }
 
-interface CursorPaginationOptions {
+export interface CursorPaginationOptions {
   take: number;
   skip?: number;
   cursor?: { id: number };
@@ -22,10 +22,10 @@ export const offsetPagination = (
 };
 
 export const cursorPagination = (
-  pageSize: string | number | undefined,
+  limit: string | number | undefined,
   lastId?: string | number,
 ): CursorPaginationOptions => {
-  const take = parseInt(String(pageSize), 10) || 3;
+  const take = parseInt(String(limit), 10) || 3;
   const queryOptions: CursorPaginationOptions = { take };
 
   if (lastId) {
