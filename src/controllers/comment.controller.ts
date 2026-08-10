@@ -3,6 +3,7 @@ import createCommentSchema from "../schemas/comment.schema";
 import { idSchema } from "../schemas/common.schema";
 import CommentService from "../services/comment.service";
 import { AuthenticationError } from "../types/errors";
+import articleService from "../services/article.service";
 
 async function getProductCommentList(
   req: Request<{}, {}, {}, { limit?: string; sort?: string; lastId?: string }>,
@@ -58,7 +59,7 @@ async function postProductComment(
   }
 }
 
-async function getArticleComment(
+async function getArticleCommentList(
   req: Request<{}, {}, {}, { limit?: string; sort?: string; lastId?: string }>,
   res: Response,
   next: NextFunction,
@@ -138,7 +139,7 @@ async function deleteComment(req: Request, res: Response, next: NextFunction) {
 export default {
   getProductCommentList,
   postProductComment,
-  getArticleComment,
+  getArticleCommentList,
   postArticleComment,
   patchComment,
   deleteComment,
