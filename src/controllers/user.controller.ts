@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import userService from "../services/user.services";
+import userService from "../services/user.service";
 import { AuthenticationError } from "../types/errors";
 import { PaginationDto } from "../dtos/user.dto.js";
 
