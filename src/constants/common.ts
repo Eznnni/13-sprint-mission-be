@@ -9,3 +9,10 @@ export const PRODUCT_ORDERBY: Record<
   title: { name: "asc" },
   like: { likeCount: "desc" },
 };
+
+export const COMMENT_ORDERBY: Record<
+  string,
+  Prisma.CommentOrderByWithRelationInput
+> = {
+  recent: { createdAt: "desc" },
+};
