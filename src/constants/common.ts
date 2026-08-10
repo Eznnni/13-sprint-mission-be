@@ -16,3 +16,11 @@ export const COMMENT_ORDERBY: Record<
 > = {
   recent: { createdAt: "desc" },
 };
+
+export const ARTICLE_ORDERBY: Record<
+  string,
+  Prisma.ArticleOrderByWithRelationInput
+> = {
+  recent: { createdAt: "desc" },
+  like: { likeCount: "desc" },
+};
