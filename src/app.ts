@@ -7,6 +7,7 @@ import authRouter from "./routes/auth";
 import userRouter from "./routes/user";
 import productRouter from "./routes/product";
 import commentRouter from "./routes/comment";
+import articleRouter from "./routes/article";
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use("/user/me", userRouter);
 
 app.use("/products", productRouter);
 app.use("/comments", commentRouter);
+app.use("/articles", articleRouter);
 
 app.use(errorHandler);
 
