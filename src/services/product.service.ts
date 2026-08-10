@@ -2,7 +2,7 @@ import productRepository from "../repositories/product.repository";
 import { PRODUCT_ORDERBY } from "../constants/common";
 import { offsetPagination } from "../lib/pagination";
 import { NotFoundError } from "../types/errors";
-import { Prisma, Product, Tag, User } from "../generated/prisma";
+import { Prisma, Product, Tag, User } from "@prisma/client";
 
 type ProductWithWriterAndTags = Product & {
   writer: User;

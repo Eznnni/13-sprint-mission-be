@@ -1,4 +1,4 @@
-import { User } from "../generated/prisma";
+import { User } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 
 async function findById(id: User["id"]) {

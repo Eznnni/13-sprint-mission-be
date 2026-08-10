@@ -1,4 +1,4 @@
-import { Prisma, Product, User } from "../generated/prisma";
+import { Prisma, Product, User } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 
 type FindProductsParams = {

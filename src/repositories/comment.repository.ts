@@ -1,4 +1,4 @@
-import { Comment, Prisma, User } from "../generated/prisma";
+import { Comment, Prisma, User } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 
 type FindCommentsParams = {

@@ -1,7 +1,7 @@
 import CommentRepository from "../repositories/comment.repository";
 import { COMMENT_ORDERBY } from "../constants/common";
 import { cursorPagination, CursorPaginationOptions } from "../lib/pagination";
-import { Comment, Prisma, User } from "../generated/prisma";
+import { Comment, Prisma, User } from "@prisma/client";
 
 type CommentWithWriter = Comment & {
   writer: User;

@@ -1,5 +1,5 @@
 import { prisma } from "../lib/prisma";
-import { Article, Prisma, User } from "../generated/prisma";
+import { Article, Prisma, User } from "@prisma/client";
 
 async function findArticlesAndCount({
   where,

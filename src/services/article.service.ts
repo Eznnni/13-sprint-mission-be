@@ -2,7 +2,7 @@ import ArticleRepository from "../repositories/article.repository";
 import { ARTICLE_ORDERBY } from "../constants/common";
 import { offsetPagination } from "../lib/pagination";
 import { NotFoundError } from "../types/errors";
-import { Article, Prisma, User } from "../generated/prisma";
+import { Article, Prisma, User } from "@prisma/client";
 
 type ArticleWithWriter = Article & {
   writer: User;

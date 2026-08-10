@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { Prisma, User } from "../generated/prisma";
+import { Prisma, User } from "@prisma/client";
 import {
   AuthenticationError,
   NotFoundError,
