@@ -11,3 +11,14 @@ export const validate =
       next(error);
     }
   };
+
+export const validateQuery =
+  <T extends ZodType>(schema: T) =>
+  (req: Request, res: Response, next: NextFunction) => {
+    try {
+      req.validatedQuery = schema.parse(req.query);
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
