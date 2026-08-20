@@ -9,9 +9,3 @@ export type SigninUserDto = {
   email: string;
   password: string;
 };
-
-export type PaginationDto = {
-  page: string;
-  pageSize: string;
-  keyword: string;
-};
