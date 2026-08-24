@@ -1,0 +1,196 @@
+### ==========================================
+### Comment API 테스트
+### VSCode "REST Client" 확장 프로그램 필요
+### 먼저 0번(로그인)을 실행해서 accessToken을 발급받으세요.
+### 상품/게시글 댓글 테스트를 위해 productId, articleId도 필요합니다.
+### (restClientProduct.http에서 만든 상품 id를 재사용하거나, 아래에서 직접 값을 지정하세요)
+### ==========================================
+
+@baseUrl = http://localhost:3000
+
+### -----------------------------------------
+### 0. 로그인 (accessToken 발급)
+### -----------------------------------------
+# @name signin
+POST {{baseUrl}}/auth/signin
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "Test1234!"
+}
+
+###
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4NjM1MzQ1OSwiZXhwIjoxNzg2MzU3MDU5fQ.5-AT5otJk40yC8bJOSv4jp0VfDEYdviGVkXj2geF9QA
+
+### 테스트에 사용할 상품/게시글 id (실제 존재하는 id로 바꿔주세요)
+@productId = 2
+@articleId = 1
+
+### ===========================================
+### [상품 댓글]
+### ===========================================
+
+### -----------------------------------------
+### 1. 상품 댓글 목록 조회 (커서 기반 페이지네이션, 로그인 불필요)
+### -----------------------------------------
+GET {{baseUrl}}/products/{{productId}}/comments?limit=10&sort=recent
+
+### -----------------------------------------
+### 2. 상품 댓글 목록 조회 - 쿼리 파라미터 없이 (기본값 확인용)
+### -----------------------------------------
+GET {{baseUrl}}/products/{{productId}}/comments
+
+### -----------------------------------------
+### 3. 상품 댓글 목록 조회 - 다음 페이지 (lastId 사용)
+###    위 1번 응답의 nextCursor 값을 lastId에 넣어서 확인
+### -----------------------------------------
+GET {{baseUrl}}/products/{{productId}}/comments?limit=10&sort=recent&lastId=1
+
+### -----------------------------------------
+### 4. 상품 댓글 등록 (로그인 필요)
+### -----------------------------------------
+# @name createProductComment
+POST {{baseUrl}}/products/{{productId}}/comments
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "content": "테테스트 상품 댓글입니다!!!!!!!!!!!!"
+}
+
+###
+@productCommentId = {{createProductComment.response.body.data.id}}
+
+### -----------------------------------------
+### 5. 상품 댓글 등록 실패 - 로그인 없이 요청
+### -----------------------------------------
+POST {{baseUrl}}/products/{{productId}}/comments
+Content-Type: application/json
+
+{
+  "content": "비로그인 댓글 시도"
+}
+
+### -----------------------------------------
+### 6. 상품 댓글 등록 실패 - content 누락
+### -----------------------------------------
+POST {{baseUrl}}/products/{{productId}}/comments
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{}
+
+### -----------------------------------------
+### 7. 상품 댓글 등록 실패 - 존재하지 않는 상품
+### -----------------------------------------
+POST {{baseUrl}}/products/999999/comments
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "content": "존재하지 않는 상품에 대한 댓글"
+}
+
+### ===========================================
+### [게시글 댓글]
+### ===========================================
+
+### -----------------------------------------
+### 8. 게시글 댓글 목록 조회 (커서 기반 페이지네이션, 로그인 불필요)
+### -----------------------------------------
+GET {{baseUrl}}/articles/{{articleId}}/comments?limit=10&sort=recent
+
+### -----------------------------------------
+### 9. 게시글 댓글 목록 조회 - 쿼리 파라미터 없이 (기본값 확인용)
+### -----------------------------------------
+GET {{baseUrl}}/articles/{{articleId}}/comments
+
+### -----------------------------------------
+### 10. 게시글 댓글 등록 (로그인 필요)
+### -----------------------------------------
+# @name createArticleComment
+POST {{baseUrl}}/articles/{{articleId}}/comments
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "content": "테스트 게시글 댓글입니다"
+}
+
+###
+@articleCommentId = {{createArticleComment.response.body.data.id}}
+
+### -----------------------------------------
+### 11. 게시글 댓글 등록 실패 - 로그인 없이 요청
+### -----------------------------------------
+POST {{baseUrl}}/articles/{{articleId}}/comments
+Content-Type: application/json
+
+{
+  "content": "비로그인 댓글 시도"
+}
+
+### -----------------------------------------
+### 12. 게시글 댓글 등록 실패 - 존재하지 않는 게시글
+### -----------------------------------------
+POST {{baseUrl}}/articles/999999/comments
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "content": "존재하지 않는 게시글에 대한 댓글"
+}
+
+### ===========================================
+### [댓글 수정 / 삭제] (공통 - product/article 댓글 둘 다 동일 엔드포인트로 처리)
+### ===========================================
+
+### -----------------------------------------
+### 13. 댓글 수정 (본인 댓글, 로그인 필요)
+###    위 4번에서 만든 productCommentId 사용
+### -----------------------------------------
+PATCH {{baseUrl}}/comments/{{productCommentId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "content": "수정된 상품 댓글 내용입니다"
+}
+
+### -----------------------------------------
+### 14. 댓글 수정 실패 - 존재하지 않는 댓글
+### -----------------------------------------
+PATCH {{baseUrl}}/comments/999999
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "content": "존재하지 않는 댓글 수정 시도"
+}
+
+### -----------------------------------------
+### 15. 댓글 수정 실패 - content 누락
+### -----------------------------------------
+PATCH {{baseUrl}}/comments/{{productCommentId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{}
+
+### -----------------------------------------
+### 16. 댓글 삭제 (본인 댓글, 로그인 필요)
+### -----------------------------------------
+DELETE {{baseUrl}}/comments/{{articleCommentId}}
+Authorization: Bearer {{accessToken}}
+
+### -----------------------------------------
+### 17. 댓글 삭제 실패 - 이미 삭제된 댓글 재삭제 시도
+### -----------------------------------------
+DELETE {{baseUrl}}/comments/{{articleCommentId}}
+Authorization: Bearer {{accessToken}}
+
+### -----------------------------------------
+### 18. 댓글 삭제 실패 - 로그인 없이 요청
+### -----------------------------------------
+DELETE {{baseUrl}}/comments/{{productCommentId}}

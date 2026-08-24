@@ -1,26 +1,20 @@
 {
-  "name": "13-sprint-mission-be",
+  "name": "13-sprint-mission-be-typescript",
   "version": "1.0.0",
-  "description": "> _이 저장소는 판다마켓 프로젝트의 백엔드 코드를 관리하는 곳입니다. 프로젝트를 클론하여 개발 환경을 설정하고, 각 브랜치에서 해당 스프린트 미션을 수행해 주세요!_ 🛠️",
-  "main": "server.js",
-  "type": "module",
+  "description": "판다마켓 프로젝트의 백엔드 코드입니다.",
+  "main": "dist/app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon src/server.js",
-    "start": "cross-env NODE_ENV=production node src/server.js",
-    "seed": "node prisma/seed.js",
-    "build": "npx prisma generate",
+    "dev": "tsx watch src/app.ts",
+    "build": "tsc",
+    "start": "node --enable-source-maps dist/app.js",
+    "typecheck:watch": "tsc --noEmit --watch",
     "db:migrate": "npx prisma migrate dev",
     "db:migrate:deploy": "npx prisma migrate deploy",
-    "db:reset": "npx prisma migrate reset",
     "db:push": "npx prisma db push",
-    "db:seed": "node prisma/seed.js",
     "db:studio": "npx prisma studio"
   },
-  "prisma": {
-    "seed": "node prisma/seed.js"
-  },
   "repository": {
+    "type": "git",
     "url": "git+https://github.com/Eznnni/13-sprint-mission-be.git"
   },
   "keywords": [],
@@ -31,25 +25,30 @@
   },
   "homepage": "https://github.com/Eznnni/13-sprint-mission-be#readme",
   "dependencies": {
-    "@prisma/client": "^6.19.3",
+    "@prisma/adapter-pg": "^7.9.1",
+    "@prisma/client": "^7.9.1",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
-    "cross-env": "^10.1.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-jwt": "^8.5.1",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.6.1",
     "multer": "^2.2.0",
-    "nanoid": "^5.1.11",
-    "swagger-jsdoc": "^6.3.0",
-    "swagger-ui-express": "^5.0.1",
-    "uuid": "^14.0.1",
+    "pg": "^8.22.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14",
-    "prisma": "^6.19.3"
+    "@types/bcrypt": "^6.0.0",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.2.0",
+    "@types/node": "^26.2.0",
+    "@types/pg": "^8.21.0",
+    "prisma": "^7.9.1",
+    "tsx": "^4.23.11",
+    "typescript": "^7.0.2"
   }
 }

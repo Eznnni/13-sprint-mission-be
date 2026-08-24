@@ -1,0 +1,35 @@
+import "dotenv/config";
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import errorHandler from "./middlewares/errorHandler";
+import authRouter from "./routes/auth";
+import userRouter from "./routes/user";
+import productRouter from "./routes/product";
+import commentRouter from "./routes/comment";
+import articleRouter from "./routes/article";
+
+const app = express();
+
+app.use(
+  cors({
+    origin: "http://localhost:3001",
+    credentials: true,
+  }),
+);
+app.use(express.json());
+app.use(cookieParser());
+
+app.use("/auth", authRouter);
+app.use("/user/me", userRouter);
+
+app.use("/products", productRouter);
+app.use("/comments", commentRouter);
+app.use("/articles", articleRouter);
+
+app.use(errorHandler);
+
+const port = process.env.PORT ?? 3000;
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});

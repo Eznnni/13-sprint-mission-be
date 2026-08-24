@@ -1,0 +1,204 @@
+### ==========================================
+### Product API 테스트
+### VSCode "REST Client" 확장 프로그램 필요
+### 먼저 restClient.http에서 로그인(signin)을 한 번 실행해서
+### accessToken을 얻어야 합니다 (혹은 아래 0번을 직접 실행)
+### ==========================================
+
+@baseUrl = http://localhost:3000
+
+### -----------------------------------------
+### 0. 로그인 (accessToken 발급)
+### -----------------------------------------
+# @name signin
+POST {{baseUrl}}/auth/signin
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "Test1234!"
+}
+
+###
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4NjM0NzQwNCwiZXhwIjoxNzg2MzUxMDA0fQ.R59ofWWecVzVqguBkcfSdFn5u_dXseG0Na1-5tg5BAI
+
+### -----------------------------------------
+### 1. 상품 목록 조회 (로그인 불필요)
+### -----------------------------------------
+GET {{baseUrl}}/products?page=1&pageSize=10&orderBy=recent&keyword=
+
+### -----------------------------------------
+### 2. 상품 목록 조회 - 정렬(좋아요순) + 검색어
+### -----------------------------------------
+GET {{baseUrl}}/products?page=1&pageSize=5&orderBy=like&keyword=신발
+
+### -----------------------------------------
+### 3. 상품 목록 조회 - 쿼리 파라미터 없이 (기본값 확인용)
+### -----------------------------------------
+GET {{baseUrl}}/products
+
+### -----------------------------------------
+### 4. 상품 등록 (로그인 필요, 이미지 없이)
+###    이미지 없는 요청은 일반 JSON으로 테스트
+### -----------------------------------------
+# @name createProductNoImage
+POST {{baseUrl}}/products
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "테스트상품",
+  "description": "이건 테스트용 상품 설명입니다 10자 이상",
+  "price": 10000,
+  "tags": ["테스트", "샘플"]
+}
+
+###
+@createdProductId = 1
+
+### -----------------------------------------
+### 5. 상품 등록 (이미지 포함, multipart/form-data)
+###    REST Client는 파일 업로드 시 로컬 경로를 지정해야 합니다.
+###    아래 < ./sample.jpg 부분을 실제 로컬 이미지 경로로 바꿔주세요.
+### -----------------------------------------
+# @name createProductWithImage
+POST {{baseUrl}}/products
+Authorization: Bearer {{accessToken}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="name"
+
+이미지포함상품
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="description"
+
+이미지가 포함된 테스트 상품입니다
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="price"
+
+25000
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="tags"
+
+["신발","운동화"]
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="images"; filename="sample.jpg"
+Content-Type: image/jpeg
+
+< ./src/test01.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### -----------------------------------------
+### 6. 상품 등록 실패 - 필수값(name) 누락
+### -----------------------------------------
+POST {{baseUrl}}/products
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "description": "이름이 없는 상품입니다",
+  "price": 5000
+}
+
+### -----------------------------------------
+### 7. 상품 등록 실패 - 로그인 없이 요청
+### -----------------------------------------
+POST {{baseUrl}}/products
+Content-Type: application/json
+
+{
+  "name": "비로그인상품",
+  "description": "로그인 없이 등록 시도",
+  "price": 1000
+}
+
+### -----------------------------------------
+### 8. 상품 상세 조회 (로그인 필요)
+###    위 4번에서 생성한 상품 id 사용
+### -----------------------------------------
+GET {{baseUrl}}/products/{{createdProductId}}
+Authorization: Bearer {{accessToken}}
+
+### -----------------------------------------
+### 9. 상품 상세 조회 실패 - 존재하지 않는 id
+### -----------------------------------------
+GET {{baseUrl}}/products/999999
+Authorization: Bearer {{accessToken}}
+
+### -----------------------------------------
+### 10. 상품 상세 조회 실패 - 잘못된 id 형식 (숫자가 아님)
+### -----------------------------------------
+GET {{baseUrl}}/products/abc
+Authorization: Bearer {{accessToken}}
+
+### -----------------------------------------
+### 11. 상품 수정 (본인 상품, 로그인 필요)
+### -----------------------------------------
+PATCH {{baseUrl}}/products/{{createdProductId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "수정된테스트상품",
+  "price": 15000
+}
+
+### -----------------------------------------
+### 12. 상품 수정 실패 - 존재하지 않는 상품
+### -----------------------------------------
+PATCH {{baseUrl}}/products/999999
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "price": 20000
+}
+
+### -----------------------------------------
+### 13. 상품 좋아요 등록
+### -----------------------------------------
+POST {{baseUrl}}/products/{{createdProductId}}/like
+Authorization: Bearer {{accessToken}}
+
+### -----------------------------------------
+### 14. 상품 좋아요 등록 - 중복 요청 (idempotent 동작 확인용)
+###     좋아요 카운트가 중복 증가하지 않는지 확인
+### -----------------------------------------
+POST {{baseUrl}}/products/{{createdProductId}}/like
+Authorization: Bearer {{accessToken}}
+
+### -----------------------------------------
+### 15. 상품 좋아요 취소
+### -----------------------------------------
+DELETE {{baseUrl}}/products/{{createdProductId}}/like
+Authorization: Bearer {{accessToken}}
+
+### -----------------------------------------
+### 16. 상품 좋아요 취소 - 이미 취소된 상태에서 재요청
+###     (좋아요 안 누른 상태에서 삭제 시도, 에러 없이 처리되는지 확인)
+### -----------------------------------------
+DELETE {{baseUrl}}/products/{{createdProductId}}/like
+Authorization: Bearer {{accessToken}}
+
+### -----------------------------------------
+### 17. 상품 좋아요 등록 실패 - 로그인 없이 요청
+### -----------------------------------------
+POST {{baseUrl}}/products/{{createdProductId}}/like
+
+### -----------------------------------------
+### 18. 상품 삭제 (본인 상품)
+### -----------------------------------------
+DELETE {{baseUrl}}/products/{{createdProductId}}
+Authorization: Bearer {{accessToken}}
+
+### -----------------------------------------
+### 19. 상품 삭제 실패 - 이미 삭제된 상품 재삭제 시도
+### -----------------------------------------
+DELETE {{baseUrl}}/products/{{createdProductId}}
+Authorization: Bearer {{accessToken}}
+
+### -----------------------------------------
+### 20. 상품 삭제 실패 - 로그인 없이 요청
+### -----------------------------------------
+DELETE {{baseUrl}}/products/1
